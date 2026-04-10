@@ -711,9 +711,6 @@
   <button type="button" class="refresh-btn" id="refreshBtn" title="Atualizar dados" onclick="loadData()">
     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.13-3.36L23 10M1 14l5.36 5.36A9 9 0 0020.49 15"/></svg>
   </button>
-  <div class="topbar-info">
-    <div class="topbar-data" id="dataHoje"></div>
-  </div>
 </div>
 </header>
 
@@ -1199,7 +1196,13 @@ async function loadData() {
   }
 
   document.getElementById('loading').style.display = 'none';
-  if (currentPage === 'clientes') { document.getElementById('app').classList.add('active'); }
+  if (currentPage === 'clientes') {
+    ['page-inicial','page-login','page-contato'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.classList.remove('active');
+    });
+    document.getElementById('app').classList.add('active');
+  }
   btn.classList.remove('spinning');
 }
 

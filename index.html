@@ -127,16 +127,18 @@
     opacity: 0.7;
   }
 
-  /* ── GRID TOPO ───────────────────────────────── */
-  .grid-top {
+  /* ── DASHBOARD GRID ─────────────────────────── */
+  .dash-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
     margin-bottom: 10px;
   }
+  .dash-grid .card-full { grid-column: 1 / -1; }
 
-  /* INVESTIMENTO */
+  /* NÚMEROS */
   .inv-layout { display: flex; flex-direction: column; gap: 8px; }
+  .prazo-layout { display: flex; flex-direction: column; gap: 8px; }
   .num-row { display: flex; align-items: baseline; gap: 5px; flex-wrap: wrap; }
   .big-num {
     font-family: 'Barlow Condensed', sans-serif;
@@ -161,62 +163,108 @@
     color: var(--text);
   }
   .med-num.orange { color: var(--orange); }
-  .num-label {
-    font-size: 11px;
-    color: var(--text-dark);
-    margin-bottom: 2px;
-  }
+  .num-label { font-size: 11px; color: var(--text-dark); margin-bottom: 2px; }
   .diff-badge {
     display: inline-block;
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 20px;
-    margin-top: 4px;
+    font-size: 13px; font-weight: 700;
+    padding: 2px 8px; border-radius: 20px; margin-top: 4px;
   }
   .diff-over  { background: #FFF0E6; color: var(--orange); }
   .diff-under { background: #E6F7F1; color: #1D9E75; }
-
-  /* PRAZOS */
-  .prazo-layout { display: flex; flex-direction: column; gap: 8px; }
   .prazo-meta { font-size: 12px; color: var(--text-muted); }
 
-  /* ── STATUS BAR ──────────────────────────────── */
-  .status-bar {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    margin-bottom: 10px;
-  }
-  .status-item {
-    background: var(--bg-card);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-card);
-    border: 1px solid var(--border);
-    padding: 14px 15px;
-    border-top: 3px solid var(--orange);
-  }
-  .status-item-label {
-    font-size: 10px;
-    color: var(--text-dark);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-bottom: 5px;
-    font-weight: 500;
-  }
-  .status-item-value {
+  /* SALDO DEVEDOR */
+  .saldo-valor {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 17px;
-    font-weight: 600;
+    font-size: clamp(22px, 5vw, 34px);
+    font-weight: 700;
+    color: var(--orange);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .saldo-sub { font-size: 11px; color: var(--text-dark); margin-top: 4px; }
+
+  /* PROJETOS */
+  .proj-list { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+  .proj-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    background: var(--bg);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    text-decoration: none;
     color: var(--text);
-    line-height: 1.1;
+    transition: border-color 0.2s, color 0.2s;
+    cursor: pointer;
   }
-  .status-item-sub {
-    font-size: 10px;
-    color: var(--text-dark);
-    margin-top: 3px;
+  .proj-item:hover { border-color: var(--orange); color: var(--orange); }
+  .proj-icon {
+    width: 32px; height: 32px; border-radius: 6px;
+    background: var(--orange-pale);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
+  .proj-icon svg { width: 16px; height: 16px; stroke: var(--orange); }
+  .proj-name { font-size: 13px; font-weight: 500; flex: 1; }
+  .proj-empty { font-size: 12px; color: var(--text-dark); text-align: center; padding: 16px 0; }
+
+  /* PERSPECTIVAS — CARROSSEL */
+  .carousel-wrap { position: relative; width: 100%; margin-top: 8px; }
+  .carousel-track {
+    width: 100%; aspect-ratio: 16/9;
+    border-radius: 8px; overflow: hidden;
+    background: var(--bg);
+    position: relative;
+  }
+  .carousel-track img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: none;
+    border-radius: 8px;
+  }
+  .carousel-track img.active { display: block; }
+  .carousel-btn {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(255,255,255,0.9);
+    border: none; border-radius: 50%;
+    width: 34px; height: 34px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 2;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    transition: background 0.2s;
+  }
+  .carousel-btn:hover { background: white; }
+  .carousel-btn svg { width: 16px; height: 16px; stroke: var(--text); }
+  .carousel-prev { left: 8px; }
+  .carousel-next { right: 8px; }
+  .carousel-dots {
+    display: flex; justify-content: center; gap: 5px; margin-top: 8px;
+  }
+  .carousel-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--border); border: none; cursor: pointer;
+    transition: background 0.2s;
+  }
+  .carousel-dot.active { background: var(--orange); }
+  .carousel-empty { font-size: 12px; color: var(--text-dark); text-align: center; padding: 24px 0; }
+
+  /* PANORAMA 360 */
+  .pan-btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; padding: 16px;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--text);
+    font-size: 14px; font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer; margin-top: 4px;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .pan-btn:hover { border-color: var(--orange); color: var(--orange); }
+  .pan-btn svg { width: 22px; height: 22px; stroke: var(--orange); flex-shrink: 0; }
+  .pan-empty { font-size: 12px; color: var(--text-dark); text-align: center; padding: 16px 0; }
 
   /* ── DESTINAÇÃO ──────────────────────────────── */
   .chart-container { position: relative; width: 100%; height: 240px; margin-top: 8px; }
@@ -365,12 +413,8 @@
       padding-left: 20px;
       padding-right: 20px;
     }
-    .grid-top {
+    .dash-grid {
       grid-template-columns: 1fr 1fr;
-      gap: 14px;
-    }
-    .status-bar {
-      grid-template-columns: repeat(4, 1fr);
       gap: 14px;
     }
     .chart-container { height: 280px; }
@@ -680,10 +724,9 @@
   <div class="last-update" id="lastUpdate"></div>
   <div class="error-msg" id="errorMsg"></div>
 
-  <!-- GRID TOPO -->
-  <div class="grid-top">
+  <div class="dash-grid">
 
-    <!-- INVESTIMENTO -->
+    <!-- 1. INVESTIMENTO -->
     <div class="card">
       <div class="card-title">Investimento</div>
       <div class="card-subtitle">gasto / previsto</div>
@@ -696,19 +739,28 @@
             <span class="big-num orange" id="invPrevisto">—</span>
           </div>
         </div>
-        <div>
-          <div class="num-label">Custo / m²</div>
-          <div class="num-row">
-            <span class="med-num" id="invM2">—</span>
-            <span class="big-sep" style="font-size:12px;">/</span>
-            <span class="med-num orange" id="invM2Prev">—</span>
-          </div>
-        </div>
         <div id="invPctLabel"></div>
       </div>
     </div>
 
-    <!-- PRAZOS -->
+    <!-- 2. CUSTO / M² -->
+    <div class="card">
+      <div class="card-title">Custo / m²</div>
+      <div class="card-subtitle">realizado / previsto</div>
+      <div class="inv-layout">
+        <div>
+          <div class="num-label">Valor por m²</div>
+          <div class="num-row">
+            <span class="big-num" id="invM2">—</span>
+            <span class="big-sep">/</span>
+            <span class="big-num orange" id="invM2Prev">—</span>
+          </div>
+        </div>
+        <div class="num-label" style="margin-top:4px;" id="statAreaSub">—</div>
+      </div>
+    </div>
+
+    <!-- 3. PRAZOS -->
     <div class="card">
       <div class="card-title">Prazos</div>
       <div class="card-subtitle">dias úteis corridos</div>
@@ -725,46 +777,68 @@
         <div class="prazo-meta" id="prazoDataFim">Previsão: —</div>
       </div>
     </div>
-  </div>
 
-  <!-- STATUS BAR -->
-  <div class="status-bar">
-    <div class="status-item">
-      <div class="status-item-label">Total Gasto</div>
-      <div class="status-item-value" id="statTotal">—</div>
-      <div class="status-item-sub">débito acumulado</div>
+    <!-- 4. SALDO DEVEDOR -->
+    <div class="card">
+      <div class="card-title">Saldo Devedor</div>
+      <div class="card-subtitle">a pagar</div>
+      <div class="saldo-valor" id="saldoDevedor">—</div>
+      <div class="saldo-sub" id="saldoSub">—</div>
     </div>
-    <div class="status-item">
-      <div class="status-item-label">Custo / m²</div>
-      <div class="status-item-value" id="statM2">—</div>
-      <div class="status-item-sub" id="statAreaSub">—</div>
-    </div>
-    <div class="status-item">
-      <div class="status-item-label">Saldo Disponível</div>
-      <div class="status-item-value" id="statCats">—</div>
-      <div class="status-item-sub" id="statSaldoPct">do orçamento</div>
-    </div>
-    <div class="status-item">
-      <div class="status-item-label">Maior Gasto</div>
-      <div class="status-item-value" id="statMaior">—</div>
-      <div class="status-item-sub" id="statMaiorVal">—</div>
-    </div>
-  </div>
 
-  <!-- DESTINAÇÃO -->
-  <div class="card">
-    <div class="card-title">Destinação</div>
-    <div class="card-subtitle">débito por categoria</div>
-    <div class="dest-legend" id="destLegend"></div>
-    <div class="chart-container">
-      <canvas id="destChart" role="img" aria-label="Gráfico de débito por categoria"></canvas>
+    <!-- 5. PROJETOS -->
+    <div class="card card-full">
+      <div class="card-title">Projetos</div>
+      <div class="card-subtitle">arquivos PDF do projeto</div>
+      <div class="proj-list" id="projList">
+        <div class="proj-empty">Nenhum projeto disponível.</div>
+      </div>
     </div>
+
+    <!-- 6. PERSPECTIVAS -->
+    <div class="card card-full">
+      <div class="card-title">Perspectivas</div>
+      <div class="card-subtitle">visualizações do projeto</div>
+      <div class="carousel-wrap" id="carouselWrap">
+        <div class="carousel-track" id="carouselTrack">
+          <div class="carousel-empty">Nenhuma imagem disponível.</div>
+        </div>
+        <button class="carousel-btn carousel-prev" id="carouselPrev" onclick="carouselMove(-1)" style="display:none;">
+          <svg fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="carousel-btn carousel-next" id="carouselNext" onclick="carouselMove(1)" style="display:none;">
+          <svg fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+      <div class="carousel-dots" id="carouselDots"></div>
+    </div>
+
+    <!-- 7. PANORAMA 360 -->
+    <div class="card card-full">
+      <div class="card-title">Panorama 360°</div>
+      <div class="card-subtitle">tour virtual da obra</div>
+      <div id="panoramaWrap">
+        <div class="pan-empty">Link do panorama não configurado.</div>
+      </div>
+    </div>
+
+    <!-- 8. DESTINAÇÃO -->
+    <div class="card card-full">
+      <div class="card-title">Destinação</div>
+      <div class="card-subtitle">débito por categoria</div>
+      <div class="dest-legend" id="destLegend"></div>
+      <div class="chart-container">
+        <canvas id="destChart" role="img" aria-label="Gráfico de débito por categoria"></canvas>
+      </div>
+    </div>
+
+  </div><!-- /dash-grid -->
 
   <div class="page-footer">
     © 2024 by Studio FC — Todos os direitos reservados<br>
     fernando@fc.arq.br &nbsp;·&nbsp; (11) 98710-1876 &nbsp;·&nbsp; São Paulo — SP — Brasil
   </div>
-  </div>
+
 </div>
 
 
@@ -1026,6 +1100,22 @@ function fazerLogout() {
   document.querySelector('[onclick*="clientes"]').classList.add('active');
 }
 
+
+// ── CARROSSEL ────────────────────────────────────────────────────
+function carouselMove(dir) {
+  var total = window._carouselTotal || 0;
+  if (!total) return;
+  window._carouselIdx = ((window._carouselIdx || 0) + dir + total) % total;
+  carouselGo(window._carouselIdx);
+}
+function carouselGo(idx) {
+  var imgs = document.querySelectorAll('#carouselTrack img');
+  var dots = document.querySelectorAll('.carousel-dot');
+  imgs.forEach(function(img, i) { img.classList.toggle('active', i === idx); });
+  dots.forEach(function(d, i) { d.classList.toggle('active', i === idx); });
+  window._carouselIdx = idx;
+}
+
 async function loadData() {
   const btn = document.getElementById('refreshBtn');
   btn.classList.add('spinning');
@@ -1098,15 +1188,66 @@ function renderDash(data) {
   document.getElementById('prazoDataInicio').textContent   = 'Início: ' + (config.dataInicio || '—');
   document.getElementById('prazoDataFim').textContent      = 'Previsão: ' + (config.dataFim || '—');
 
-  // Status cards
-  document.getElementById('statTotal').textContent   = fmt(totalGeral);
-  document.getElementById('statM2').textContent      = fmt(m2);
+  // Custo m²
+  document.getElementById('invM2').textContent       = fmt(m2);
+  document.getElementById('invM2Prev').textContent   = fmt(m2Prev);
   document.getElementById('statAreaSub').textContent = area + ' m²';
-  document.getElementById('statCats').textContent    = fmt(saldo);
-  document.getElementById('statMaior').textContent   = maior ? maior.categoria : '—';
-  document.getElementById('statMaiorVal').textContent = maior ? fmt(maior.debito) : '—';
-  const spEl = document.getElementById('statSaldoPct');
-  if (spEl) spEl.textContent = (100 - pctGasto).toFixed(1) + '% disponível';
+
+  // Saldo Devedor
+  var saldoDev = typeof config.saldoDevedor !== 'undefined' ? config.saldoDevedor : saldo;
+  document.getElementById('saldoDevedor').textContent = fmt(saldoDev);
+  document.getElementById('saldoSub').textContent = saldoDev >= 0 ? 'a pagar ao fornecedor' : 'crédito disponível';
+
+  // Projetos (PDFs do Google Drive)
+  var projList = document.getElementById('projList');
+  if (projList) {
+    var projetos = config.projetos || [];
+    if (projetos.length > 0) {
+      projList.innerHTML = projetos.map(function(p) {
+        return '<a class="proj-item" href="' + p.url + '" target="_blank" rel="noopener">' +
+          '<div class="proj-icon"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>' +
+          '<span class="proj-name">' + p.nome + '</span>' +
+          '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
+        '</a>';
+      }).join('');
+    } else {
+      projList.innerHTML = '<div class="proj-empty">Nenhum projeto disponível.</div>';
+    }
+  }
+
+  // Perspectivas — carrossel de imagens
+  var track = document.getElementById('carouselTrack');
+  var dotsEl = document.getElementById('carouselDots');
+  var perspectivas = config.perspectivas || [];
+  if (track && perspectivas.length > 0) {
+    track.innerHTML = perspectivas.map(function(url, i) {
+      return '<img src="' + url + '" alt="Perspectiva ' + (i+1) + '"' + (i===0?' class="active"':'') + ' loading="lazy">';
+    }).join('');
+    document.getElementById('carouselPrev').style.display = perspectivas.length > 1 ? 'flex' : 'none';
+    document.getElementById('carouselNext').style.display = perspectivas.length > 1 ? 'flex' : 'none';
+    if (dotsEl) {
+      dotsEl.innerHTML = perspectivas.map(function(_, i) {
+        return '<button class="carousel-dot' + (i===0?' active':'') + '" onclick="carouselGo(' + i + ')"></button>';
+      }).join('');
+    }
+    window._carouselIdx = 0;
+    window._carouselTotal = perspectivas.length;
+  } else if (track) {
+    track.innerHTML = '<div class="carousel-empty">Nenhuma imagem disponível.</div>';
+    if (dotsEl) dotsEl.innerHTML = '';
+  }
+
+  // Panorama 360
+  var panWrap = document.getElementById('panoramaWrap');
+  if (panWrap) {
+    if (config.panoramaUrl) {
+      panWrap.innerHTML = '<a class="pan-btn" href="' + config.panoramaUrl + '" target="_blank" rel="noopener">' +
+        '<svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>' +
+        'Abrir Tour Virtual 360°</a>';
+    } else {
+      panWrap.innerHTML = '<div class="pan-empty">Link do panorama não configurado.</div>';
+    }
+  }
 
   // Gráfico Destinação
   const allCats = [...categorias].sort((a,b) => (b.previsto||0) - (a.previsto||0));

@@ -21,7 +21,7 @@
     --text-dark:     #888888;
     --shadow-card:   0 1px 4px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.05);
     --shadow-topbar: 0 1px 0 rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.06);
-    --topbar-h:      74px;
+    --topbar-h:      90px;
     --bottomnav-h:   64px;
     --radius:        12px;
     --page-pad:      16px;
@@ -61,12 +61,12 @@
     padding: 0 var(--page-pad);
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     height: 100%;
   }
 
   .topbar-logo {
-    height: 57px;
+    height: 86px;
     width: auto;
     display: block;
   }
@@ -721,7 +721,7 @@
 <div id="page-inicial" class="page active">
   <div class="inicial-hero">
     <div class="inicial-hero-label">Studio FC — Arquitetura &amp; Interiores</div>
-    <div class="inicial-hero-title">Nascemos para<br><span>transformar</span><br>sonhos em obra</div>
+    <div class="inicial-hero-title">Nascemos para<br><span>transformar</span><br>sonhos em realidade</div>
     <div class="inicial-hero-desc">
       Há 20 anos representamos seus projetos com maquetes eletrônicas, passeios virtuais,
       plantas humanizadas, animações e interfaces interativas — unindo estética e funcionalidade
@@ -889,6 +889,24 @@ let currentPage = 'clientes';
 const pages = { inicial: 'page-inicial', clientes: 'page-login', contato: 'page-contato' };
 
 var loggedIn = false;
+var activeClientIndex = -1;
+
+// Restaura sessão salva
+(function() {
+  var saved = localStorage.getItem('fc_session');
+  if (saved) {
+    try {
+      var s = JSON.parse(saved);
+      var cliente = CLIENTES_DB.find(function(c) {
+        return c.user === s.user && c.pass === s.pass;
+      });
+      if (cliente) {
+        activeScriptUrl = cliente.scriptUrl;
+        loggedIn = true;
+      }
+    } catch(e) { localStorage.removeItem('fc_session'); }
+  }
+})();
 
 function navTo(page, el) {
   event.preventDefault();
@@ -925,6 +943,7 @@ function fazerLogin(e) {
   if (cliente) {
     activeScriptUrl = cliente.scriptUrl;
     loggedIn = true;
+    localStorage.setItem('fc_session', JSON.stringify({ user: cliente.user, pass: cliente.pass }));
     document.getElementById('loginError').style.display = 'none';
     document.getElementById('page-login').classList.remove('active');
     document.getElementById('app').classList.add('active');
@@ -938,6 +957,7 @@ function fazerLogin(e) {
 
 function fazerLogout() {
   loggedIn = false;
+  localStorage.removeItem('fc_session');
   document.getElementById('app').classList.remove('active');
   document.getElementById('page-login').classList.add('active');
   document.getElementById('refreshBtn').style.display = 'none';
@@ -1094,7 +1114,20 @@ function enviarContato(e) {
   window.location.href = 'mailto:fernando@fc.arq.br?subject=Contato via App - ' + encodeURIComponent(nome) + '&body=' + body;
 }
 
-// Dados carregados apenas após login do cliente
+// Restaura página correta se já logado
+if (loggedIn) {
+  var pgLogin = document.getElementById('page-login');
+  var pgApp   = document.getElementById('app');
+  if (pgLogin) pgLogin.classList.remove('active');
+  if (pgApp)   pgApp.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  var navClientes = document.querySelector('[onclick*="clientes"]');
+  if (navClientes) navClientes.classList.add('active');
+  document.getElementById('refreshBtn').style.display = 'flex';
+  currentPage = 'clientes';
+  loadData();
+}
+// Dados atualizados periodicamente quando logado
 setInterval(function(){ if(loggedIn) loadData(); }, 30 * 1000);
 </script>
 </body>

@@ -511,6 +511,7 @@
     align-items: center;
     justify-content: center;
     padding: 20px 0;
+    width: 100%;
   }
   .login-card {
     background: var(--bg-card);
@@ -579,6 +580,36 @@
     transition: color 0.2s, border-color 0.2s;
   }
   .client-logout:hover { color: var(--orange); border-color: var(--orange); }
+
+
+  /* ── PADRONIZAÇÃO DE LARGURA ─── */
+  /* Todas as páginas usam o mesmo wrapper de largura máxima */
+  .page-content {
+    width: 100%;
+    max-width: 880px;
+    margin: 0 auto;
+  }
+
+  /* Login card centralizado mas com mesma largura lateral */
+  .login-wrap {
+    max-width: 880px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  /* ── FOOTER ─── */
+  .page-footer {
+    width: 100%;
+    max-width: 880px;
+    margin: 24px auto 0;
+    padding: 16px 0 4px;
+    border-top: 1px solid rgba(0,0,0,0.07);
+    text-align: center;
+    font-size: 10px;
+    color: #BBBBBB;
+    line-height: 1.8;
+    letter-spacing: 0.02em;
+  }
 
 </style>
 </head>
@@ -713,6 +744,11 @@
     <div class="chart-container">
       <canvas id="destChart" role="img" aria-label="Gráfico de débito por categoria"></canvas>
     </div>
+
+  <div class="page-footer">
+    © 2024 by Studio FC — Todos os direitos reservados<br>
+    fernando@fc.arq.br &nbsp;·&nbsp; (11) 98710-1876 &nbsp;·&nbsp; São Paulo — SP — Brasil
+  </div>
   </div>
 </div>
 
@@ -760,6 +796,11 @@
       <div class="service-dot"></div>
       <div class="service-text"><strong>Consultoria</strong> — Orientação técnica para reformas, aprovações junto a órgãos públicos e laudo de regularização.</div>
     </div>
+  </div>
+
+  <div class="page-footer">
+    © 2024 by Studio FC — Todos os direitos reservados<br>
+    fernando@fc.arq.br &nbsp;·&nbsp; (11) 98710-1876 &nbsp;·&nbsp; São Paulo — SP — Brasil
   </div>
 </div>
 
@@ -823,6 +864,10 @@
       Atendimento de segunda a sexta<br>
       <strong style="color:var(--text);">08h às 18h</strong>
     </div>
+  </div>
+  <div class="page-footer">
+    © 2024 by Studio FC — Todos os direitos reservados<br>
+    fernando@fc.arq.br &nbsp;·&nbsp; (11) 98710-1876 &nbsp;·&nbsp; São Paulo — SP — Brasil
   </div>
 </div>
 

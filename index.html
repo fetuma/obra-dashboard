@@ -858,7 +858,23 @@
 </nav>
 
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwNtpO1W83g2UCgGgilwfYiPRsEi-b_eLU7cwZeYO2PTze3hn-vKwR7DJ8G_IkDVw2R/exec';
+// ============================================================
+// BANCO DE CLIENTES
+// Adicione novos clientes aqui:
+// { user, pass, scriptUrl }
+// ============================================================
+const CLIENTES_DB = [
+  {
+    user: 'fernando@fc.arq.br',
+    pass: '1910',
+    scriptUrl: 'https://script.google.com/macros/s/AKfycbwNtpO1W83g2UCgGgilwfYiPRsEi-b_eLU7cwZeYO2PTze3hn-vKwR7DJ8G_IkDVw2R/exec'
+  }
+  // Exemplo novo cliente:
+  // { user: 'cliente2@email.com', pass: 'senha123', scriptUrl: 'URL_DO_APPS_SCRIPT_CLIENTE2' },
+];
+// ============================================================
+
+let activeScriptUrl = null;
 
 let destInst = null;
 
@@ -901,10 +917,13 @@ function navTo(page, el) {
 
 function fazerLogin(e) {
   e.preventDefault();
-  var user = document.getElementById('loginUser').value.trim();
+  var user = document.getElementById('loginUser').value.trim().toLowerCase();
   var pass = document.getElementById('loginPass').value;
-  // Validação básica — será expandida com autenticação real
-  if (user === 'fernando@fc.arq.br' && pass === '1910') {
+  var cliente = CLIENTES_DB.find(function(c) {
+    return c.user.toLowerCase() === user && c.pass === pass;
+  });
+  if (cliente) {
+    activeScriptUrl = cliente.scriptUrl;
     loggedIn = true;
     document.getElementById('loginError').style.display = 'none';
     document.getElementById('page-login').classList.remove('active');
@@ -933,7 +952,7 @@ async function loadData() {
 
   try {
     let data;
-    if (SCRIPT_URL === 'SUA_URL_DO_APPS_SCRIPT_AQUI') {
+    if (!activeScriptUrl) {
       data = {
         config: { nome: 'ESSENTIAL', area: 120, orcamento: 95861.21, prazoDias: 90 },
         categorias: [
@@ -946,7 +965,7 @@ async function loadData() {
         totalGeral: 95861.21
       };
     } else {
-      const resp = await fetch(SCRIPT_URL);
+      const resp = await fetch(activeScriptUrl);
       data = await resp.json();
     }
 
@@ -1075,8 +1094,8 @@ function enviarContato(e) {
   window.location.href = 'mailto:fernando@fc.arq.br?subject=Contato via App - ' + encodeURIComponent(nome) + '&body=' + body;
 }
 
-loadData();
-setInterval(loadData, 30 * 1000);
+// Dados carregados apenas após login do cliente
+setInterval(function(){ if(loggedIn) loadData(); }, 30 * 1000);
 </script>
 </body>
 </html>

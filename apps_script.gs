@@ -242,7 +242,7 @@ function coletarImagens(pasta, tipos, lista) {
     var imgs = pasta.getFilesByType(tipos[t]);
     while (imgs.hasNext()) {
       var img = imgs.next();
-      lista.push('https://drive.google.com/thumbnail?id=' + img.getId() + '&sz=w1920');
+      lista.push('https://lh3.googleusercontent.com/d/' + img.getId());
     }
   }
 }

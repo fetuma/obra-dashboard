@@ -185,27 +185,56 @@
   }
   .saldo-sub { font-size: 11px; color: var(--text-dark); margin-top: 4px; }
 
-  /* PROJETOS */
-  .proj-list { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
-  .proj-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 12px;
+  /* PROJETOS — pastas agrupadas */
+  .proj-folders { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+  .proj-folder {}
+  .proj-folder-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 9px 12px;
     background: var(--bg);
     border-radius: 8px;
     border: 1px solid var(--border);
-    text-decoration: none;
-    color: var(--text);
-    transition: border-color 0.2s, color 0.2s;
     cursor: pointer;
+    -webkit-user-select: none; user-select: none;
+    transition: border-color 0.2s;
   }
-  .proj-item:hover { border-color: var(--orange); color: var(--orange); }
-  .proj-icon {
-    width: 32px; height: 32px; border-radius: 6px;
+  .proj-folder-header:hover { border-color: var(--orange); }
+  .proj-folder-header.open { border-color: var(--orange); border-radius: 8px 8px 0 0; border-bottom-color: transparent; }
+  .proj-folder-icon {
+    width: 28px; height: 28px; border-radius: 6px;
     background: var(--orange-pale);
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
-  .proj-icon svg { width: 16px; height: 16px; stroke: var(--orange); }
-  .proj-name { font-size: 13px; font-weight: 500; flex: 1; }
+  .proj-folder-icon svg { width: 15px; height: 15px; stroke: var(--orange); }
+  .proj-folder-name { font-size: 13px; font-weight: 600; flex: 1; color: var(--text); }
+  .proj-folder-count { font-size: 11px; color: var(--text-dark); }
+  .proj-folder-chevron { width: 14px; height: 14px; stroke: var(--text-dark); transition: transform 0.2s; flex-shrink: 0; }
+  .proj-folder-header.open .proj-folder-chevron { transform: rotate(90deg); }
+  .proj-folder-body {
+    display: none; flex-direction: column;
+    border: 1px solid var(--orange); border-top: none;
+    border-radius: 0 0 8px 8px;
+    overflow: hidden;
+  }
+  .proj-folder-body.open { display: flex; }
+  .proj-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+    color: var(--text);
+    transition: background 0.15s;
+  }
+  .proj-item:last-child { border-bottom: none; }
+  .proj-item:hover { background: var(--orange-pale); }
+  .proj-icon {
+    width: 26px; height: 26px; border-radius: 5px;
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .proj-icon svg { width: 14px; height: 14px; stroke: var(--orange); }
+  .proj-name { font-size: 12px; font-weight: 500; flex: 1; }
   .proj-empty { font-size: 12px; color: var(--text-dark); text-align: center; padding: 16px 0; }
 
   /* PERSPECTIVAS — CARROSSEL */
@@ -790,7 +819,7 @@
     <div class="card card-full">
       <div class="card-title">Projetos</div>
       <div class="card-subtitle">arquivos PDF do projeto</div>
-      <div class="proj-list" id="projList">
+      <div class="proj-folders" id="projList">
         <div class="proj-empty">Nenhum projeto disponível.</div>
       </div>
     </div>
@@ -1101,6 +1130,14 @@ function fazerLogout() {
 }
 
 
+// ── PASTAS DE PROJETOS ───────────────────────────────────────────
+function toggleFolder(header, bodyId) {
+  var body = document.getElementById(bodyId);
+  var open = body.classList.contains('open');
+  body.classList.toggle('open', !open);
+  header.classList.toggle('open', !open);
+}
+
 // ── CARROSSEL ────────────────────────────────────────────────────
 function carouselMove(dir) {
   var total = window._carouselTotal || 0;
@@ -1198,17 +1235,44 @@ function renderDash(data) {
   document.getElementById('saldoDevedor').textContent = fmt(saldoDev);
   document.getElementById('saldoSub').textContent = saldoDev >= 0 ? 'a pagar ao fornecedor' : 'crédito disponível';
 
-  // Projetos (PDFs do Google Drive)
+  // Projetos (PDFs agrupados por pasta)
   var projList = document.getElementById('projList');
   if (projList) {
     var projetos = config.projetos || [];
     if (projetos.length > 0) {
-      projList.innerHTML = projetos.map(function(p) {
-        return '<a class="proj-item" href="' + p.url + '" target="_blank" rel="noopener">' +
-          '<div class="proj-icon"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>' +
-          '<span class="proj-name">' + p.nome + '</span>' +
-          '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
-        '</a>';
+      // Agrupa por categoria (parte antes de " — ")
+      var grupos = {};
+      projetos.forEach(function(p) {
+        var sep = p.nome.indexOf(' \u2014 ');
+        var cat  = sep >= 0 ? p.nome.substring(0, sep) : 'OUTROS';
+        var nome = sep >= 0 ? p.nome.substring(sep + 3) : p.nome;
+        if (!grupos[cat]) grupos[cat] = [];
+        grupos[cat].push({ nome: nome, url: p.url });
+      });
+
+      var folderSVG = '<svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>';
+      var fileSVG   = '<svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+      var chevSVG   = '<svg class="proj-folder-chevron" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>';
+
+      projList.innerHTML = Object.keys(grupos).sort().map(function(cat, idx) {
+        var arquivos = grupos[cat];
+        var bodyId = 'pf-' + idx;
+        var items = arquivos.map(function(f) {
+          return '<a class="proj-item" href="' + f.url + '" target="_blank" rel="noopener">' +
+            '<div class="proj-icon">' + fileSVG + '</div>' +
+            '<span class="proj-name">' + f.nome + '</span>' +
+            '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
+          '</a>';
+        }).join('');
+        return '<div class="proj-folder">' +
+          '<div class="proj-folder-header" onclick="toggleFolder(this,\'' + bodyId + '\')">' +
+            '<div class="proj-folder-icon">' + folderSVG + '</div>' +
+            '<span class="proj-folder-name">' + cat + '</span>' +
+            '<span class="proj-folder-count">' + arquivos.length + ' arquivo' + (arquivos.length > 1 ? 's' : '') + '</span>' +
+            chevSVG +
+          '</div>' +
+          '<div class="proj-folder-body" id="' + bodyId + '">' + items + '</div>' +
+        '</div>';
       }).join('');
     } else {
       projList.innerHTML = '<div class="proj-empty">Nenhum projeto disponível.</div>';

@@ -904,7 +904,7 @@ function fazerLogin(e) {
   var user = document.getElementById('loginUser').value.trim();
   var pass = document.getElementById('loginPass').value;
   // Validação básica — será expandida com autenticação real
-  if (user && pass.length >= 4) {
+  if (user === 'fernando@fc.arq.br' && pass === '1910') {
     loggedIn = true;
     document.getElementById('loginError').style.display = 'none';
     document.getElementById('page-login').classList.remove('active');

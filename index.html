@@ -1038,7 +1038,7 @@ function hoje() {
   return new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric' });
 }
 
-let currentPage = 'clientes';
+let currentPage = 'inicial';
 const pages = { inicial: 'page-inicial', clientes: 'page-login', contato: 'page-contato' };
 
 var loggedIn = false;
@@ -1392,19 +1392,8 @@ function enviarContato(e) {
   window.location.href = 'mailto:fernando@fc.arq.br?subject=Contato via App - ' + encodeURIComponent(nome) + '&body=' + body;
 }
 
-// Restaura página correta se já logado
-if (loggedIn) {
-  var pgLogin = document.getElementById('page-login');
-  var pgApp   = document.getElementById('app');
-  if (pgLogin) pgLogin.classList.remove('active');
-  if (pgApp)   pgApp.classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
-  var navClientes = document.querySelector('[onclick*="clientes"]');
-  if (navClientes) navClientes.classList.add('active');
-  checkRefreshBtn();
-  currentPage = 'clientes';
-  loadData();
-}
+// Sempre inicia na página INICIAL
+checkRefreshBtn();
 </script>
 
 <script>

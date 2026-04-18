@@ -1,16 +1,22 @@
-const CACHE_NAME = 'studiofc-v1';
-const ASSETS = [
+const CACHE_NAME = 'studiofc-v2';
+const STATIC_ASSETS = [
   '/',
   '/index.html',
-  'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap',
+  '/logo.webp',
+  '/logo.png',
+  '/fe.webp',
+  '/fe.jpg',
+  '/icons/icon-192.webp',
+  '/icons/icon-512.webp',
+  '/manifest.json',
   'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js'
 ];
 
-// Instala e faz cache dos assets principais
+// Instala e faz cache dos assets estáticos
 self.addEventListener('install', function(e) {
   e.waitUntil(
     caches.open(CACHE_NAME).then(function(cache) {
-      return cache.addAll(ASSETS);
+      return cache.addAll(STATIC_ASSETS);
     })
   );
   self.skipWaiting();
@@ -29,24 +35,41 @@ self.addEventListener('activate', function(e) {
   self.clients.claim();
 });
 
-// Estratégia: network first, fallback para cache
+// Estratégia: cache-first para assets estáticos, network-first para dados
 self.addEventListener('fetch', function(e) {
-  // Não intercepta requests do Apps Script (dados sempre frescos)
   if (e.request.url.includes('script.google.com')) return;
 
-  e.respondWith(
-    fetch(e.request)
-      .then(function(response) {
-        // Atualiza cache com resposta nova
-        var clone = response.clone();
-        caches.open(CACHE_NAME).then(function(cache) {
-          cache.put(e.request, clone);
+  var url = e.request.url;
+  var isStatic = /\.(webp|png|jpg|gif|js|css|woff2?)$/.test(url) ||
+                 url.includes('fonts.g') ||
+                 url.includes('cdnjs.cloudflare.com');
+
+  if (isStatic) {
+    e.respondWith(
+      caches.match(e.request).then(function(cached) {
+        if (cached) return cached;
+        return fetch(e.request).then(function(response) {
+          var clone = response.clone();
+          caches.open(CACHE_NAME).then(function(cache) {
+            cache.put(e.request, clone);
+          });
+          return response;
         });
-        return response;
       })
-      .catch(function() {
-        // Offline: serve do cache
-        return caches.match(e.request);
-      })
-  );
+    );
+  } else {
+    e.respondWith(
+      fetch(e.request)
+        .then(function(response) {
+          var clone = response.clone();
+          caches.open(CACHE_NAME).then(function(cache) {
+            cache.put(e.request, clone);
+          });
+          return response;
+        })
+        .catch(function() {
+          return caches.match(e.request);
+        })
+    );
+  }
 });

@@ -495,23 +495,7 @@
     object-fit: cover;
     flex-shrink: 0;
   }
-  .hero-carousel-dots {
-    position: absolute;
-    bottom: 14px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 7px;
-    z-index: 2;
-  }
-  .hero-carousel-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.45);
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-  .hero-carousel-dot.active { background: #fff; }
+  .hero-carousel-dots { display: none; }
 
   /* INICIAL */
   .inicial-hero {
@@ -1512,7 +1496,7 @@ function heroStart() {
     var track = document.getElementById('heroTrack');
     var slides = track ? track.querySelectorAll('.hero-carousel-slide') : [];
     heroGo(_hIdx + 1);
-  }, 4000);
+  }, 180000);
 }
 
 document.addEventListener('DOMContentLoaded', heroCarouselInit);

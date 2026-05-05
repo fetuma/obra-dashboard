@@ -452,11 +452,12 @@
   /* ── DESKTOP (≥768px) ────────────────────────── */
   @media (min-width: 768px) {
     body {
-      max-width: 880px;
-      margin: 0 auto;
       padding-left: 20px;
       padding-right: 20px;
     }
+    .topbar-inner { max-width: 100%; }
+    .bottom-nav-inner { max-width: 100%; }
+    .page-content, .login-wrap, .page-footer { max-width: 100%; }
     .dash-grid {
       grid-template-columns: 1fr 1fr;
       gap: 14px;
@@ -472,6 +473,45 @@
   /* ── PÁGINAS */
   .page { display: none; }
   .page.active { display: block; }
+
+  /* ── HERO CAROUSEL (página inicial) ── */
+  .hero-carousel-wrap {
+    position: relative;
+    margin-left: calc(-1 * var(--page-pad));
+    margin-right: calc(-1 * var(--page-pad));
+    margin-top: -12px;
+    overflow: hidden;
+    height: calc(100dvh - var(--topbar-h) - var(--bottomnav-h) - 28px);
+    background: #111;
+  }
+  .hero-carousel-track {
+    display: flex;
+    height: 100%;
+    transition: transform 0.6s ease;
+  }
+  .hero-carousel-slide {
+    min-width: 100%;
+    height: 100%;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  .hero-carousel-dots {
+    position: absolute;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 7px;
+    z-index: 2;
+  }
+  .hero-carousel-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.45);
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  .hero-carousel-dot.active { background: #fff; }
 
   /* INICIAL */
   .inicial-hero {
@@ -896,6 +936,18 @@
 
 <!-- PÁGINA INICIAL -->
 <div id="page-inicial" class="page active">
+  <div class="hero-carousel-wrap">
+    <div class="hero-carousel-track" id="heroTrack">
+      <!-- imagens serão adicionadas aqui -->
+    </div>
+    <div class="hero-carousel-dots" id="heroDots"></div>
+  </div>
+</div>
+
+
+<!-- PÁGINA CONTATO -->
+<div id="page-contato" class="page">
+
   <div class="inicial-hero">
     <div class="inicial-hero-label">Studio FC — Arquitetura &amp; Interiores</div>
     <div class="inicial-hero-title">Nascemos para<br><span>transformar</span><br>sonhos em realidade</div>
@@ -938,15 +990,6 @@
       <div class="service-text"><strong>Consultoria</strong> — Orientação técnica para reformas, aprovações junto a órgãos públicos e laudo de regularização.</div>
     </div>
   </div>
-
-  <div class="page-footer">
-    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.2.0</span>
-  </div>
-</div>
-
-
-<!-- PÁGINA CONTATO -->
-<div id="page-contato" class="page">
 
   <div class="contato-card">
     <div class="contato-hero">
@@ -1421,6 +1464,45 @@ function enviarContato(e) {
 
 // Sempre inicia na página INICIAL
 checkRefreshBtn();
+
+// ── HERO CAROUSEL ──────────────────────────────────────
+var _hIdx = 0, _hTimer = null;
+
+function heroCarouselInit() {
+  var track = document.getElementById('heroTrack');
+  var dotsEl = document.getElementById('heroDots');
+  var slides = track ? track.querySelectorAll('.hero-carousel-slide') : [];
+  if (!slides.length) return;
+  dotsEl.innerHTML = '';
+  slides.forEach(function(_, i) {
+    var d = document.createElement('div');
+    d.className = 'hero-carousel-dot' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', function() { heroGo(i); });
+    dotsEl.appendChild(d);
+  });
+  heroStart();
+}
+
+function heroGo(n) {
+  var track = document.getElementById('heroTrack');
+  var dots = document.querySelectorAll('.hero-carousel-dot');
+  var slides = track ? track.querySelectorAll('.hero-carousel-slide') : [];
+  if (!slides.length) return;
+  _hIdx = (n + slides.length) % slides.length;
+  track.style.transform = 'translateX(-' + (_hIdx * 100) + '%)';
+  dots.forEach(function(d, i) { d.classList.toggle('active', i === _hIdx); });
+}
+
+function heroStart() {
+  clearInterval(_hTimer);
+  _hTimer = setInterval(function() {
+    var track = document.getElementById('heroTrack');
+    var slides = track ? track.querySelectorAll('.hero-carousel-slide') : [];
+    heroGo(_hIdx + 1);
+  }, 4000);
+}
+
+document.addEventListener('DOMContentLoaded', heroCarouselInit);
 </script>
 
 <script>

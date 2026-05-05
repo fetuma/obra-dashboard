@@ -1366,7 +1366,8 @@ function renderDash(data) {
       datasets: [
         {
           label: 'Real',
-          data: allCats.map(c => c.debito),
+          data: allCats.map(c => c.debito > 0 ? c.debito : null),
+          spanGaps: false,
           borderColor: '#E8681A',
           backgroundColor: 'rgba(232,104,26,0.07)',
           pointBackgroundColor: '#E8681A',
@@ -1375,7 +1376,8 @@ function renderDash(data) {
         },
         {
           label: 'Previsto',
-          data: allCats.map(c => +(c.previsto || 0).toFixed(2)),
+          data: allCats.map(c => c.previsto > 0 ? +c.previsto.toFixed(2) : null),
+          spanGaps: false,
           borderColor: '#F5A96A',
           backgroundColor: 'transparent',
           pointBackgroundColor: '#F5A96A',

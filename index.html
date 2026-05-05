@@ -475,13 +475,14 @@
   .page.active { display: block; }
 
   /* ── HERO CAROUSEL (página inicial) ── */
+  body.inicial-active { overflow: hidden; }
   .hero-carousel-wrap {
-    position: relative;
-    margin-left: calc(-1 * var(--page-pad));
-    margin-right: calc(-1 * var(--page-pad));
-    margin-top: -12px;
+    position: fixed;
+    top: var(--topbar-h);
+    left: 0;
+    right: 0;
+    bottom: var(--bottomnav-h);
     overflow: hidden;
-    height: calc(100dvh - var(--topbar-h) - var(--bottomnav-h) - 28px);
     background: #111;
   }
   .hero-carousel-track {
@@ -1132,7 +1133,7 @@ function navTo(page, el) {
   event.preventDefault();
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   el.classList.add('active');
-  // esconde todas as páginas
+  document.body.classList.toggle('inicial-active', page === 'inicial');
   ['page-inicial','page-login','app','page-contato'].forEach(function(id) {
     var pg = document.getElementById(id);
     if (pg) pg.classList.remove('active');
@@ -1499,7 +1500,10 @@ function heroStart() {
   }, 180000);
 }
 
-document.addEventListener('DOMContentLoaded', heroCarouselInit);
+document.addEventListener('DOMContentLoaded', function() {
+  document.body.classList.add('inicial-active');
+  heroCarouselInit();
+});
 </script>
 
 <script>

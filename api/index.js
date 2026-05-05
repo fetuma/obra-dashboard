@@ -9,10 +9,11 @@ app.use(cors({ origin: ['https://www.fc.arq.br', 'http://localhost'] }));
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const PORT       = process.env.PORT || 3000;
+const CACHE_TTL  = 55 * 60 * 1000; // 55 minutos
 
-// Carrega clientes das env vars:
-// CLIENT_0_USER, CLIENT_0_PASS, CLIENT_0_SCRIPT_URL
-// CLIENT_1_USER, CLIENT_1_PASS, CLIENT_1_SCRIPT_URL ...
+// Cache em memória por scriptUrl
+const cache = {};
+
 function carregarClientes() {
   const clientes = [];
   let i = 0;
@@ -53,11 +54,22 @@ app.get('/dados', async (req, res) => {
     return res.status(401).json({ erro: 'Token inválido' });
   }
 
+  const key    = payload.scriptUrl;
+  const cached = cache[key];
+
+  // Serve cache se válido
+  if (cached && Date.now() - cached.ts < CACHE_TTL) {
+    return res.json(cached.data);
+  }
+
   try {
-    const r    = await fetch(payload.scriptUrl);
+    const r    = await fetch(key);
     const data = await r.json();
+    cache[key] = { data, ts: Date.now() };
     res.json(data);
   } catch (e) {
+    // Se falhar mas tiver cache antigo, serve ele
+    if (cached) return res.json(cached.data);
     res.status(502).json({ erro: 'Erro ao buscar dados do Apps Script' });
   }
 });

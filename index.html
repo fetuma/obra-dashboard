@@ -764,9 +764,6 @@
     <source srcset="logo.webp" type="image/webp">
     <img class="topbar-logo" id="topbarLogo" src="logo.png" alt="Logo" width="160" height="40">
   </picture>
-  <button type="button" class="refresh-btn" id="refreshBtn" title="Atualizar dados" onclick="loadData()">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.13-3.36L23 10M1 14l5.36 5.36A9 9 0 0020.49 15"/></svg>
-  </button>
 </div>
 </header>
 
@@ -1119,16 +1116,13 @@ function navTo(page, el) {
   if (page === 'clientes') {
     if (loggedIn) {
       document.getElementById('app').classList.add('active');
-      checkRefreshBtn();
-    } else {
+          } else {
       document.getElementById('page-login').classList.add('active');
-      checkRefreshBtn();
-    }
+          }
   } else {
     var target = document.getElementById(pages[page]);
     if (target) target.classList.add('active');
-    checkRefreshBtn();
-  }
+      }
 }
 
 async function fazerLogin(e) {
@@ -1148,8 +1142,7 @@ async function fazerLogin(e) {
     document.getElementById('loginError').style.display = 'none';
     document.getElementById('page-login').classList.remove('active');
     document.getElementById('app').classList.add('active');
-    checkRefreshBtn();
-    currentPage = 'clientes';
+        currentPage = 'clientes';
     loadData();
   } catch(err) {
     document.getElementById('loginError').style.display = 'block';
@@ -1161,8 +1154,7 @@ function fazerLogout() {
   localStorage.removeItem('fc_token');
   document.getElementById('app').classList.remove('active');
   document.getElementById('page-login').classList.add('active');
-  checkRefreshBtn();
-  // marca nav clientes como ativo
+    // marca nav clientes como ativo
   document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
   document.querySelector('[onclick*="clientes"]').classList.add('active');
 }
@@ -1192,21 +1184,15 @@ function carouselGo(idx) {
 }
 
 var _lastLoadTime = 0;
-var _STALE_MS = 5 * 60 * 1000; // 5 minutos
-
-function checkRefreshBtn() {
-  var btn = document.getElementById('refreshBtn');
-  if (!loggedIn || !activeScriptUrl) { btn.style.display = 'none'; return; }
-  var stale = (Date.now() - _lastLoadTime) > _STALE_MS;
-  btn.style.display = stale ? 'flex' : 'none';
-}
-
 async function loadData() {
-  const btn = document.getElementById('refreshBtn');
-  btn.style.display = 'none';
-  btn.classList.add('spinning');
-  document.getElementById('loading').style.display = 'flex';
-  document.getElementById('app').classList.remove('active');
+  // Mostra cache imediatamente se existir
+  var cached = localStorage.getItem('fc_data_cache');
+  if (cached) {
+    try { renderDash(JSON.parse(cached)); } catch(e) {}
+  } else {
+    document.getElementById('loading').style.display = 'flex';
+    document.getElementById('app').classList.remove('active');
+  }
 
   try {
     const token = localStorage.getItem('fc_token');
@@ -1216,12 +1202,11 @@ async function loadData() {
     if (resp.status === 401) { fazerLogout(); return; }
     const data = await resp.json();
 
+    localStorage.setItem('fc_data_cache', JSON.stringify(data));
     _lastLoadTime = Date.now();
     renderDash(data);
     document.getElementById('lastUpdate').textContent = 'Atualizado em ' + new Date().toLocaleTimeString('pt-BR');
     document.getElementById('errorMsg').style.display = 'none';
-    // Agenda verificação do botão após 5 min
-    setTimeout(checkRefreshBtn, _STALE_MS + 1000);
   } catch(e) {
     document.getElementById('errorMsg').textContent = 'Erro ao carregar dados: ' + e.message;
     document.getElementById('errorMsg').style.display = 'block';
@@ -1235,8 +1220,10 @@ async function loadData() {
     });
     document.getElementById('app').classList.add('active');
   }
-  btn.classList.remove('spinning');
 }
+
+// Auto-refresh a cada 1 hora
+setInterval(function() { if (loggedIn) loadData(); }, 60 * 60 * 1000);
 
 function renderDash(data) {
   const { config, categorias, totalGeral, totalPrevisto } = data;
@@ -1430,7 +1417,6 @@ function enviarContato(e) {
 }
 
 // Sempre inicia na página INICIAL
-checkRefreshBtn();
 
 // ── HERO CAROUSEL ──────────────────────────────────────
 var _hIdx = 0, _hTimer = null;

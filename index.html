@@ -1081,21 +1081,7 @@
 </nav>
 
 <script>
-// ============================================================
-// BANCO DE CLIENTES
-// Adicione novos clientes aqui:
-// { user, pass, scriptUrl }
-// ============================================================
-const CLIENTES_DB = [
-  {
-    user: 'fernando@fc.arq.br',
-    pass: '1910',
-    scriptUrl: 'https://script.google.com/macros/s/AKfycbxGvHmv-rmsdOIfdLvsE-TB2UgHJP0sFPjjZgIZspPTFHqwpfTfkhbMjyg_y3imfkMf/exec'
-  }
-  // Exemplo novo cliente:
-  // { user: 'cliente2@email.com', pass: 'senha123', scriptUrl: 'URL_DO_APPS_SCRIPT_CLIENTE2' },
-];
-// ============================================================
+const API_URL = 'https://obra-dashboard-production.up.railway.app';
 
 let activeScriptUrl = null;
 
@@ -1114,21 +1100,10 @@ const pages = { inicial: 'page-inicial', clientes: 'page-login', contato: 'page-
 var loggedIn = false;
 var activeClientIndex = -1;
 
-// Restaura sessão salva
+// Restaura sessão salva (JWT)
 (function() {
-  var saved = localStorage.getItem('fc_session');
-  if (saved) {
-    try {
-      var s = JSON.parse(saved);
-      var cliente = CLIENTES_DB.find(function(c) {
-        return c.user === s.user && c.pass === s.pass;
-      });
-      if (cliente) {
-        activeScriptUrl = cliente.scriptUrl;
-        loggedIn = true;
-      }
-    } catch(e) { localStorage.removeItem('fc_session'); }
-  }
+  var token = localStorage.getItem('fc_token');
+  if (token) { loggedIn = true; }
 })();
 
 function navTo(page, el) {
@@ -1156,31 +1131,34 @@ function navTo(page, el) {
   }
 }
 
-function fazerLogin(e) {
+async function fazerLogin(e) {
   e.preventDefault();
   var user = document.getElementById('loginUser').value.trim().toLowerCase();
   var pass = document.getElementById('loginPass').value;
-  var cliente = CLIENTES_DB.find(function(c) {
-    return c.user.toLowerCase() === user && c.pass === pass;
-  });
-  if (cliente) {
-    activeScriptUrl = cliente.scriptUrl;
+  try {
+    var resp = await fetch(API_URL + '/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user, pass })
+    });
+    if (!resp.ok) throw new Error('invalid');
+    var data = await resp.json();
+    localStorage.setItem('fc_token', data.token);
     loggedIn = true;
-    localStorage.setItem('fc_session', JSON.stringify({ user: cliente.user, pass: cliente.pass }));
     document.getElementById('loginError').style.display = 'none';
     document.getElementById('page-login').classList.remove('active');
     document.getElementById('app').classList.add('active');
     checkRefreshBtn();
     currentPage = 'clientes';
     loadData();
-  } else {
+  } catch(err) {
     document.getElementById('loginError').style.display = 'block';
   }
 }
 
 function fazerLogout() {
   loggedIn = false;
-  localStorage.removeItem('fc_session');
+  localStorage.removeItem('fc_token');
   document.getElementById('app').classList.remove('active');
   document.getElementById('page-login').classList.add('active');
   checkRefreshBtn();
@@ -1231,23 +1209,12 @@ async function loadData() {
   document.getElementById('app').classList.remove('active');
 
   try {
-    let data;
-    if (!activeScriptUrl) {
-      data = {
-        config: { nome: 'ESSENTIAL', area: 120, orcamento: 95861.21, prazoDias: 90 },
-        categorias: [
-          { categoria: 'ADM', debito: 15000 },
-          { categoria: 'CLIMATIZAÇÃO', debito: 23090.21 },
-          { categoria: 'ILUMINAÇÃO', debito: 1158.80 },
-          { categoria: 'MÃO DE OBRA', debito: 55800 },
-          { categoria: 'SERVIÇOS INICIAIS', debito: 812.20 },
-        ],
-        totalGeral: 95861.21
-      };
-    } else {
-      const resp = await fetch(activeScriptUrl);
-      data = await resp.json();
-    }
+    const token = localStorage.getItem('fc_token');
+    const resp = await fetch(API_URL + '/dados', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (resp.status === 401) { fazerLogout(); return; }
+    const data = await resp.json();
 
     _lastLoadTime = Date.now();
     renderDash(data);

@@ -1360,30 +1360,25 @@ function renderDash(data) {
 
   if (destInst) destInst.destroy();
   destInst = new Chart(document.getElementById('destChart'), {
-    type: 'line',
+    type: 'bar',
     data: {
       labels: allCats.map(c => c.categoria),
       datasets: [
         {
-          label: 'Real',
-          data: allCats.map(c => c.debito > 0 ? c.debito : null),
-          spanGaps: false,
-          borderColor: '#E8681A',
-          backgroundColor: 'rgba(232,104,26,0.07)',
-          pointBackgroundColor: '#E8681A',
-          pointRadius: 5, pointHoverRadius: 7,
-          tension: 0.3, borderWidth: 2, fill: true, pointBorderWidth: 0
+          label: 'Estimado',
+          data: allCats.map(c => c.previsto || 0),
+          backgroundColor: 'rgba(180,180,180,0.5)',
+          borderColor: 'rgba(160,160,160,0.7)',
+          borderWidth: 1,
+          borderRadius: 3
         },
         {
-          label: 'Previsto',
-          data: allCats.map(c => c.previsto > 0 ? +c.previsto.toFixed(2) : null),
-          spanGaps: false,
-          borderColor: '#F5A96A',
-          backgroundColor: 'transparent',
-          pointBackgroundColor: '#F5A96A',
-          pointRadius: 5, pointHoverRadius: 7,
-          tension: 0.3, borderWidth: 2,
-          borderDash: [6, 4], fill: false, pointBorderWidth: 0
+          label: 'Real',
+          data: allCats.map(c => c.debito || 0),
+          backgroundColor: 'rgba(232,104,26,0.85)',
+          borderColor: '#E8681A',
+          borderWidth: 1,
+          borderRadius: 3
         }
       ]
     },
@@ -1391,25 +1386,16 @@ function renderDash(data) {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { display: false },
+        legend: { display: true, labels: { color: '#888', font: { size: 11 }, boxWidth: 12 } },
         tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${fmt(ctx.raw)}` } }
       },
       scales: {
         x: {
           ticks: { color: '#999', font: { size: 10, family: 'DM Sans' }, maxRotation: 45, autoSkip: false },
-          grid: { color: 'rgba(0,0,0,0.05)' }
+          grid: { display: false }
         },
         y: {
-          type: 'logarithmic',
-          min: 100,
-          ticks: {
-            color: '#999', font: { size: 10 },
-            callback: v => {
-              if ([100,500,1000,5000,10000,50000,100000].includes(v))
-                return v >= 1000 ? 'R$ ' + (v/1000).toFixed(0) + 'k' : 'R$ ' + v;
-              return '';
-            }
-          },
+          ticks: { color: '#999', font: { size: 10 }, callback: v => 'R$ ' + (v/1000).toFixed(0) + 'k' },
           grid: { color: 'rgba(0,0,0,0.06)' }
         }
       }

@@ -922,20 +922,28 @@
 <div id="page-inicial" class="page active">
   <div class="hero-carousel-wrap">
     <div class="hero-carousel-track" id="heroTrack">
-      <img class="hero-carousel-slide" src="carousel/01.webp" alt="Perspectiva 1" width="1920" height="1080">
-      <img class="hero-carousel-slide" src="carousel/02.webp" alt="Perspectiva 2" width="1920" height="1080" loading="lazy">
-      <img class="hero-carousel-slide" src="carousel/03.webp" alt="Perspectiva 3" width="1920" height="1080" loading="lazy">
-      <img class="hero-carousel-slide" src="carousel/04.webp" alt="Perspectiva 4" width="1920" height="1080" loading="lazy">
-      <img class="hero-carousel-slide" src="carousel/05.webp" alt="Perspectiva 5" width="1920" height="1080" loading="lazy">
-      <img class="hero-carousel-slide" src="carousel/06.webp" alt="Perspectiva 6" width="1920" height="1080" loading="lazy">
-      <img class="hero-carousel-slide" src="carousel/07.webp" alt="Perspectiva 7" width="1920" height="1080" loading="lazy">
-      <img class="hero-carousel-slide" src="carousel/08.webp" alt="Perspectiva 8" width="1920" height="1080" loading="lazy">
-      <img class="hero-carousel-slide" src="carousel/09.webp" alt="Perspectiva 9" width="1920" height="1080" loading="lazy">
-      <img class="hero-carousel-slide" src="carousel/10.webp" alt="Perspectiva 10" width="1920" height="1080" loading="lazy">
-      <img class="hero-carousel-slide" src="carousel/11.webp" alt="Perspectiva 11" width="1920" height="1080" loading="lazy">
-      <img class="hero-carousel-slide" src="carousel/12.webp" alt="Perspectiva 12" width="1920" height="1080" loading="lazy">
-      <img class="hero-carousel-slide" src="carousel/13.webp" alt="Perspectiva 13" width="1920" height="1080" loading="lazy">
-      <img class="hero-carousel-slide" src="carousel/14.webp" alt="Perspectiva 14" width="1920" height="1080" loading="lazy">
+      <img class="hero-carousel-slide" src="portifolio/p01.webp" alt="Portfólio 1" width="1920" height="1080">
+      <img class="hero-carousel-slide" src="portifolio/p02.webp" alt="Portfólio 2" width="1920" height="1080" loading="lazy">
+      <img class="hero-carousel-slide" src="portifolio/p03.webp" alt="Portfólio 3" width="1920" height="1080" loading="lazy">
+      <img class="hero-carousel-slide" src="portifolio/p04.webp" alt="Portfólio 4" width="1920" height="1080" loading="lazy">
+      <img class="hero-carousel-slide" src="portifolio/p05.webp" alt="Portfólio 5" width="1920" height="1080" loading="lazy">
+      <img class="hero-carousel-slide" src="portifolio/p06.webp" alt="Portfólio 6" width="1920" height="1080" loading="lazy">
+      <img class="hero-carousel-slide" src="portifolio/p07.webp" alt="Portfólio 7" width="1920" height="1080" loading="lazy">
+      <img class="hero-carousel-slide" src="portifolio/p08.webp" alt="Portfólio 8" width="1920" height="1080" loading="lazy">
+      <img class="hero-carousel-slide" src="portifolio/p09.webp" alt="Portfólio 9" width="1920" height="1080" loading="lazy">
+      <img class="hero-carousel-slide" src="portifolio/p10.webp" alt="Portfólio 10" width="1920" height="1080" loading="lazy">
+      <img class="hero-carousel-slide" src="portifolio/p11.webp" alt="Portfólio 11" width="1920" height="1080" loading="lazy">
+      <img class="hero-carousel-slide" src="portifolio/p12.webp" alt="Portfólio 12" width="1920" height="1080" loading="lazy">
+      <img class="hero-carousel-slide" src="portifolio/p13.webp" alt="Portfólio 13" width="1920" height="1080" loading="lazy">
+      <img class="hero-carousel-slide" src="portifolio/p14.webp" alt="Portfólio 14" width="1920" height="1080" loading="lazy">
+      <img class="hero-carousel-slide" src="portifolio/p15.webp" alt="Portfólio 15" width="1920" height="1080" loading="lazy">
+      <img class="hero-carousel-slide" src="portifolio/p16.webp" alt="Portfólio 16" width="1920" height="1080" loading="lazy">
+      <img class="hero-carousel-slide" src="portifolio/p17.webp" alt="Portfólio 17" width="1920" height="1080" loading="lazy">
+      <img class="hero-carousel-slide" src="portifolio/p18.webp" alt="Portfólio 18" width="1920" height="1080" loading="lazy">
+      <img class="hero-carousel-slide" src="portifolio/p19.webp" alt="Portfólio 19" width="1920" height="1080" loading="lazy">
+      <img class="hero-carousel-slide" src="portifolio/p20.webp" alt="Portfólio 20" width="1920" height="1080" loading="lazy">
+      <img class="hero-carousel-slide" src="portifolio/p21.webp" alt="Portfólio 21" width="1920" height="1080" loading="lazy">
+      <img class="hero-carousel-slide" src="portifolio/p22.webp" alt="Portfólio 22" width="1920" height="1080" loading="lazy">
     </div>
     <div class="hero-carousel-dots" id="heroDots"></div>
   </div>
@@ -1353,10 +1361,7 @@ function renderDash(data) {
   // Gráfico Destinação
   const allCats = [...categorias].sort((a,b) => (b.previsto||0) - (a.previsto||0));
   const legendEl = document.getElementById('destLegend');
-  if (legendEl) legendEl.innerHTML = `
-    <span><span style="width:20px;height:2px;background:#E8681A;display:inline-block;border-radius:2px;"></span>Real</span>
-    <span><span style="width:20px;height:2px;background:#F5A96A;display:inline-block;border-radius:2px;border-top:2px dashed #F5A96A;"></span>Previsto</span>
-  `;
+  if (legendEl) legendEl.innerHTML = '';
 
   if (destInst) destInst.destroy();
   destInst = new Chart(document.getElementById('destChart'), {
@@ -1386,7 +1391,7 @@ function renderDash(data) {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { display: true, labels: { color: '#888', font: { size: 11 }, boxWidth: 12 } },
+        legend: { display: false },
         tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${fmt(ctx.raw)}` } }
       },
       scales: {
@@ -1449,7 +1454,7 @@ function heroStart() {
     var track = document.getElementById('heroTrack');
     var slides = track ? track.querySelectorAll('.hero-carousel-slide') : [];
     heroGo(_hIdx + 1);
-  }, 180000);
+  }, 30000);
 }
 
 document.addEventListener('DOMContentLoaded', function() {

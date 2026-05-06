@@ -1068,14 +1068,14 @@
     </svg>
     <span>Inicial</span>
   </a>
-  <a class="nav-item" href="#clientes" onclick="navTo('clientes',this)" aria-label="Clientes">
+  <a class="nav-item" href="#clientes" onclick="navTo('clientes',this)" aria-label="Área Clientes">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <rect x="2" y="7" width="20" height="14" rx="2"/>
       <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/>
       <line x1="12" y1="12" x2="12" y2="16"/>
       <line x1="10" y1="14" x2="14" y2="14"/>
     </svg>
-    <span>Clientes</span>
+    <span>Área Clientes</span>
   </a>
   <a class="nav-item" href="#contato" onclick="navTo('contato',this)" aria-label="Contato">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1105,11 +1105,27 @@ const pages = { inicial: 'page-inicial', clientes: 'page-login', contato: 'page-
 
 var loggedIn = false;
 var activeClientIndex = -1;
+var _sessionTimer = null;
+var SESSION_MS = 30 * 60 * 1000; // 30 minutos
 
-// Restaura sessão salva (JWT)
+function _startSessionTimer() {
+  clearTimeout(_sessionTimer);
+  _sessionTimer = setTimeout(function() {
+    fazerLogout();
+  }, SESSION_MS);
+}
+
+// Restaura sessão salva (JWT) — verifica se ainda válida (< 30min)
 (function() {
   var token = localStorage.getItem('fc_token');
-  if (token) { loggedIn = true; }
+  var ts    = parseInt(localStorage.getItem('fc_login_ts') || '0', 10);
+  if (token && ts && (Date.now() - ts < SESSION_MS)) {
+    loggedIn = true;
+    _startSessionTimer();
+  } else if (token) {
+    localStorage.removeItem('fc_token');
+    localStorage.removeItem('fc_login_ts');
+  }
 })();
 
 function navTo(page, el) {
@@ -1147,7 +1163,9 @@ async function fazerLogin(e) {
     if (!resp.ok) throw new Error('invalid');
     var data = await resp.json();
     localStorage.setItem('fc_token', data.token);
+    localStorage.setItem('fc_login_ts', Date.now());
     loggedIn = true;
+    _startSessionTimer();
     document.getElementById('loginError').style.display = 'none';
     document.getElementById('page-login').classList.remove('active');
     document.getElementById('app').classList.add('active');
@@ -1160,7 +1178,9 @@ async function fazerLogin(e) {
 
 function fazerLogout() {
   loggedIn = false;
+  clearTimeout(_sessionTimer);
   localStorage.removeItem('fc_token');
+  localStorage.removeItem('fc_login_ts');
   document.getElementById('app').classList.remove('active');
   document.getElementById('page-login').classList.add('active');
     // marca nav clientes como ativo

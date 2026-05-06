@@ -37,7 +37,7 @@ app.post('/login', (req, res) => {
   const cliente  = clientes.find(c => c.user === user.toLowerCase() && c.pass === pass);
   if (!cliente) return res.status(401).json({ erro: 'Credenciais inválidas' });
 
-  const token = jwt.sign({ scriptUrl: cliente.scriptUrl }, JWT_SECRET, { expiresIn: '12h' });
+  const token = jwt.sign({ scriptUrl: cliente.scriptUrl }, JWT_SECRET, { expiresIn: '30m' });
   res.json({ token });
 });
 

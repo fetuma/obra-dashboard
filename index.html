@@ -860,7 +860,17 @@
       <div class="saldo-sub" id="saldoSub">—</div>
     </div>
 
-    <!-- 5. PROJETOS -->
+    <!-- 5. DESTINOS -->
+    <div class="card card-full">
+      <div class="card-title">Destinos</div>
+      <div class="card-subtitle">débito por categoria</div>
+      <div class="dest-legend" id="destLegend"></div>
+      <div class="chart-container">
+        <canvas id="destChart" role="img" aria-label="Gráfico de débito por categoria"></canvas>
+      </div>
+    </div>
+
+    <!-- 6. PROJETOS -->
     <div class="card card-full">
       <div class="card-title">Projetos</div>
       <div class="card-subtitle">arquivos PDF do projeto</div>
@@ -869,7 +879,7 @@
       </div>
     </div>
 
-    <!-- 6. PERSPECTIVAS -->
+    <!-- 7. PERSPECTIVAS -->
     <div class="card card-full">
       <div class="card-title">Perspectivas</div>
       <div class="card-subtitle">visualizações do projeto</div>
@@ -887,22 +897,12 @@
       <div class="carousel-dots" id="carouselDots"></div>
     </div>
 
-    <!-- 7. PANORAMA 360 -->
+    <!-- 8. PANORAMA 360 -->
     <div class="card card-full">
       <div class="card-title">Panorama 360°</div>
       <div class="card-subtitle">tour virtual da obra</div>
       <div id="panoramaWrap">
         <div class="pan-empty">Link do panorama não configurado.</div>
-      </div>
-    </div>
-
-    <!-- 8. DESTINAÇÃO -->
-    <div class="card card-full">
-      <div class="card-title">Destinação</div>
-      <div class="card-subtitle">débito por categoria</div>
-      <div class="dest-legend" id="destLegend"></div>
-      <div class="chart-container">
-        <canvas id="destChart" role="img" aria-label="Gráfico de débito por categoria"></canvas>
       </div>
     </div>
 
@@ -1323,7 +1323,7 @@ function renderDash(data) {
   var perspectivas = config.perspectivas || [];
   if (track && perspectivas.length > 0) {
     track.innerHTML = perspectivas.map(function(url, i) {
-      return '<img src="' + url + '" alt="Perspectiva ' + (i+1) + '"' + (i===0?' class="active"':'') + ' loading="lazy">';
+      return '<img src="' + url + '" alt="Perspectiva ' + (i+1) + '"' + (i===0?' class="active"':'') + ' loading="lazy" decoding="async">';
     }).join('');
     document.getElementById('carouselPrev').style.display = perspectivas.length > 1 ? 'flex' : 'none';
     document.getElementById('carouselNext').style.display = perspectivas.length > 1 ? 'flex' : 'none';

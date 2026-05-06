@@ -488,18 +488,13 @@
     overflow: hidden;
     background: #111;
   }
-  .hero-carousel-track {
-    display: flex;
-    height: 100%;
-    transition: transform 0.6s ease;
-  }
-  .hero-carousel-slide {
-    min-width: 100%;
-    height: 100%;
+  .hero-img {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     object-fit: cover;
-    flex-shrink: 0;
+    transition: opacity 0.8s ease;
   }
-  .hero-carousel-dots { display: none; }
 
   /* INICIAL */
   .inicial-hero {
@@ -922,31 +917,7 @@
 <!-- PÁGINA INICIAL -->
 <div id="page-inicial" class="page active">
   <div class="hero-carousel-wrap">
-    <div class="hero-carousel-track" id="heroTrack">
-      <img class="hero-carousel-slide" src="portifolio/p01.webp" alt="Portfólio 1" width="1920" height="1080">
-      <img class="hero-carousel-slide" src="portifolio/p02.webp" alt="Portfólio 2" width="1920" height="1080" loading="lazy">
-      <img class="hero-carousel-slide" src="portifolio/p03.webp" alt="Portfólio 3" width="1920" height="1080" loading="lazy">
-      <img class="hero-carousel-slide" src="portifolio/p04.webp" alt="Portfólio 4" width="1920" height="1080" loading="lazy">
-      <img class="hero-carousel-slide" src="portifolio/p05.webp" alt="Portfólio 5" width="1920" height="1080" loading="lazy">
-      <img class="hero-carousel-slide" src="portifolio/p06.webp" alt="Portfólio 6" width="1920" height="1080" loading="lazy">
-      <img class="hero-carousel-slide" src="portifolio/p07.webp" alt="Portfólio 7" width="1920" height="1080" loading="lazy">
-      <img class="hero-carousel-slide" src="portifolio/p08.webp" alt="Portfólio 8" width="1920" height="1080" loading="lazy">
-      <img class="hero-carousel-slide" src="portifolio/p09.webp" alt="Portfólio 9" width="1920" height="1080" loading="lazy">
-      <img class="hero-carousel-slide" src="portifolio/p10.webp" alt="Portfólio 10" width="1920" height="1080" loading="lazy">
-      <img class="hero-carousel-slide" src="portifolio/p11.webp" alt="Portfólio 11" width="1920" height="1080" loading="lazy">
-      <img class="hero-carousel-slide" src="portifolio/p12.webp" alt="Portfólio 12" width="1920" height="1080" loading="lazy">
-      <img class="hero-carousel-slide" src="portifolio/p13.webp" alt="Portfólio 13" width="1920" height="1080" loading="lazy">
-      <img class="hero-carousel-slide" src="portifolio/p14.webp" alt="Portfólio 14" width="1920" height="1080" loading="lazy">
-      <img class="hero-carousel-slide" src="portifolio/p15.webp" alt="Portfólio 15" width="1920" height="1080" loading="lazy">
-      <img class="hero-carousel-slide" src="portifolio/p16.webp" alt="Portfólio 16" width="1920" height="1080" loading="lazy">
-      <img class="hero-carousel-slide" src="portifolio/p17.webp" alt="Portfólio 17" width="1920" height="1080" loading="lazy">
-      <img class="hero-carousel-slide" src="portifolio/p18.webp" alt="Portfólio 18" width="1920" height="1080" loading="lazy">
-      <img class="hero-carousel-slide" src="portifolio/p19.webp" alt="Portfólio 19" width="1920" height="1080" loading="lazy">
-      <img class="hero-carousel-slide" src="portifolio/p20.webp" alt="Portfólio 20" width="1920" height="1080" loading="lazy">
-      <img class="hero-carousel-slide" src="portifolio/p21.webp" alt="Portfólio 21" width="1920" height="1080" loading="lazy">
-      <img class="hero-carousel-slide" src="portifolio/p22.webp" alt="Portfólio 22" width="1920" height="1080" loading="lazy">
-    </div>
-    <div class="hero-carousel-dots" id="heroDots"></div>
+    <img id="heroImg" class="hero-img" src="portifolio/p01.webp" alt="Portfólio" width="1920" height="1080">
   </div>
 </div>
 
@@ -1441,47 +1412,34 @@ function enviarContato(e) {
 
 // Sempre inicia na página INICIAL
 
-// ── HERO CAROUSEL ──────────────────────────────────────
+// ── HERO IMAGE ROTATOR ─────────────────────────────────
+var _heroSrcs = (function() {
+  var a = [];
+  for (var i = 1; i <= 22; i++) a.push('portifolio/p' + (i < 10 ? '0' + i : i) + '.webp');
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+  }
+  return a;
+})();
 var _hIdx = 0, _hTimer = null;
 
-function heroCarouselInit() {
-  var track = document.getElementById('heroTrack');
-  var dotsEl = document.getElementById('heroDots');
-  if (!track) return;
-  // shuffle slides
-  var slides = Array.from(track.querySelectorAll('.hero-carousel-slide'));
-  if (!slides.length) return;
-  for (var i = slides.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i + 1));
-    track.appendChild(slides[j]);
-    var tmp = slides[i]; slides[i] = slides[j]; slides[j] = tmp;
-  }
-  dotsEl.innerHTML = '';
-  heroStart();
-}
-
-function heroGo(n) {
-  var track = document.getElementById('heroTrack');
-  var dots = document.querySelectorAll('.hero-carousel-dot');
-  var slides = track ? track.querySelectorAll('.hero-carousel-slide') : [];
-  if (!slides.length) return;
-  _hIdx = (n + slides.length) % slides.length;
-  track.style.transform = 'translateX(-' + (_hIdx * 100) + '%)';
-  dots.forEach(function(d, i) { d.classList.toggle('active', i === _hIdx); });
-}
-
-function heroStart() {
-  clearInterval(_hTimer);
-  _hTimer = setInterval(function() {
-    var track = document.getElementById('heroTrack');
-    var slides = track ? track.querySelectorAll('.hero-carousel-slide') : [];
-    heroGo(_hIdx + 1);
-  }, 30000);
+function heroNext() {
+  _hIdx = (_hIdx + 1) % _heroSrcs.length;
+  var img = document.getElementById('heroImg');
+  if (!img) return;
+  img.style.opacity = '0';
+  setTimeout(function() {
+    img.src = _heroSrcs[_hIdx];
+    img.style.opacity = '1';
+  }, 500);
 }
 
 document.addEventListener('DOMContentLoaded', function() {
   document.body.classList.add('inicial-active');
-  heroCarouselInit();
+  var img = document.getElementById('heroImg');
+  if (img) img.src = _heroSrcs[0];
+  _hTimer = setInterval(heroNext, 30000);
 });
 </script>
 

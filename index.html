@@ -1426,15 +1426,16 @@ var _hIdx = 0, _hTimer = null;
 function heroCarouselInit() {
   var track = document.getElementById('heroTrack');
   var dotsEl = document.getElementById('heroDots');
-  var slides = track ? track.querySelectorAll('.hero-carousel-slide') : [];
+  if (!track) return;
+  // shuffle slides
+  var slides = Array.from(track.querySelectorAll('.hero-carousel-slide'));
   if (!slides.length) return;
+  for (var i = slides.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    track.appendChild(slides[j]);
+    var tmp = slides[i]; slides[i] = slides[j]; slides[j] = tmp;
+  }
   dotsEl.innerHTML = '';
-  slides.forEach(function(_, i) {
-    var d = document.createElement('div');
-    d.className = 'hero-carousel-dot' + (i === 0 ? ' active' : '');
-    d.addEventListener('click', function() { heroGo(i); });
-    dotsEl.appendChild(d);
-  });
   heroStart();
 }
 

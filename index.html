@@ -870,6 +870,15 @@
       </div>
     </div>
 
+    <!-- 5b. PIZZA DESTINOS -->
+    <div class="card card-full">
+      <div class="card-title">Distribuição</div>
+      <div class="card-subtitle">% do débito por categoria</div>
+      <div class="chart-container" style="height:260px;">
+        <canvas id="pieChart" role="img" aria-label="Gráfico pizza de distribuição por categoria"></canvas>
+      </div>
+    </div>
+
     <!-- 6. PROJETOS -->
     <div class="card card-full">
       <div class="card-title">Projetos</div>
@@ -1064,6 +1073,7 @@ const API_URL = 'https://obra-dashboard-production.up.railway.app';
 let activeScriptUrl = null;
 
 let destInst = null;
+let pieInst  = null;
 
 function fmt(v) {
   return 'R$ ' + Number(v||0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -1399,6 +1409,41 @@ function renderDash(data) {
       }
     }
   });
+
+  // Gráfico Pizza — % débito por categoria (apenas categorias com débito > 0)
+  const pieCats = allCats.filter(c => (c.debito || 0) > 0);
+  const pieColors = [
+    '#E8681A','#F5A96A','#888','#aaa','#ccc',
+    '#c0532a','#e09060','#999','#bbb','#ddd',
+    '#d4601e','#f0b080','#777','#a5a5a5','#c8c8c8'
+  ];
+  if (pieInst) pieInst.destroy();
+  if (pieCats.length > 0) {
+    pieInst = new Chart(document.getElementById('pieChart'), {
+      type: 'doughnut',
+      data: {
+        labels: pieCats.map(c => c.categoria),
+        datasets: [{
+          data: pieCats.map(c => c.debito),
+          backgroundColor: pieCats.map((_, i) => pieColors[i % pieColors.length]),
+          borderWidth: 1,
+          borderColor: '#f5f5f5'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true, position: 'right', labels: { color: '#333', font: { size: 10 }, boxWidth: 12, padding: 8 } },
+          tooltip: { callbacks: { label: ctx => {
+            const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
+            const pct = total ? ((ctx.raw / total) * 100).toFixed(1) : 0;
+            return ` ${ctx.label}: ${fmt(ctx.raw)} (${pct}%)`;
+          }}}
+        }
+      }
+    });
+  }
 }
 
 

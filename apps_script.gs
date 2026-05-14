@@ -32,7 +32,9 @@ function doGet(e) {
     delete resultado.config._saldoDevedor;
     resultado.config.projetos     = listarPDFs();
     resultado.config.perspectivas = listarImagens();
-    resultado.cronograma          = lerCronograma();
+    var crono = lerCronograma();
+    resultado.cronograma          = crono.lista;
+    resultado.totalCronograma     = crono.total;
   } catch(err) {
     resultado.erro = err.message + ' | ' + err.stack;
   }
@@ -275,27 +277,28 @@ function debugDrive() {
 }
 
 // ── ABA CRONOGRAMA — categoria (col A) + % (col E) ────────────
-// Lê apenas linhas de categoria (col A não vazia, col E tem %)
+// Retorna { lista, total } — total vem da linha TOTAL (col E)
 function lerCronograma() {
   var ss  = SpreadsheetApp.getActiveSpreadsheet();
   var aba = ss.getSheetByName('CRONOGRAMA') || ss.getSheetByName('Cronograma');
-  if (!aba) return [];
+  if (!aba) return { lista: [], total: 0 };
   var d = aba.getDataRange().getValues();
   var lista = [];
+  var total = 0;
   for (var i = 0; i < d.length; i++) {
-    var etapa = String(d[i][0]).trim();
+    var etapa  = String(d[i][0]).trim();
     var pctRaw = d[i][4]; // col E (índice 4)
-    if (!etapa || etapa.toUpperCase() === 'TOTAL') continue;
-    // aceita número (0-1 ou 0-100) ou string "50%"
-    var pct = 0;
-    if (typeof pctRaw === 'number') {
-      pct = pctRaw <= 1 ? pctRaw * 100 : pctRaw;
-    } else {
-      pct = parseFloat(String(pctRaw).replace('%','').replace(',','.')) || 0;
-    }
+    if (!etapa) continue;
+    var pct = parsePct(pctRaw);
+    if (etapa.toUpperCase() === 'TOTAL') { total = pct; continue; }
     lista.push({ etapa: etapa, pct: Math.round(pct * 10) / 10 });
   }
-  return lista;
+  return { lista: lista, total: Math.round(total * 10) / 10 };
+}
+
+function parsePct(raw) {
+  if (typeof raw === 'number') return raw <= 1 ? raw * 100 : raw;
+  return parseFloat(String(raw).replace('%','').replace(',','.')) || 0;
 }
 
 // ── HELPERS ───────────────────────────────────────────────────

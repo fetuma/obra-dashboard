@@ -847,6 +847,13 @@
             <span class="big-num orange" id="prazoDiasTotal">—</span>
           </div>
         </div>
+        <div>
+          <div class="num-label">Concluído</div>
+          <div class="num-row">
+            <span class="big-num" id="prazoConcluidoPct">—</span>
+            <span class="big-sep">%</span>
+          </div>
+        </div>
         <div class="prazo-meta" id="prazoDataInicio">Início: —</div>
         <div class="prazo-meta" id="prazoDataFim">Previsão: —</div>
       </div>
@@ -1282,6 +1289,8 @@ function renderDash(data) {
   document.getElementById('prazoDiasTotal').textContent    = prazoDias;
   document.getElementById('prazoDataInicio').textContent   = 'Início: ' + (config.dataInicio || '—');
   document.getElementById('prazoDataFim').textContent      = 'Previsão: ' + (config.dataFim || '—');
+  var totalCrono = typeof data.totalCronograma === 'number' ? data.totalCronograma : null;
+  document.getElementById('prazoConcluidoPct').textContent = totalCrono !== null ? totalCrono.toFixed(1) : '—';
 
   // Custo m²
   document.getElementById('invM2').textContent       = fmt(m2);

@@ -9,7 +9,7 @@ app.use(cors({ origin: ['https://www.fc.arq.br', 'http://localhost'] }));
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const PORT       = process.env.PORT || 3000;
-const CACHE_TTL  = 55 * 60 * 1000; // 55 minutos
+const CACHE_TTL  = 5 * 60 * 1000; // 5 minutos
 
 // Cache em memória por scriptUrl
 const cache = {};

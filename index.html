@@ -1290,6 +1290,10 @@ function renderDash(data) {
   document.getElementById('prazoDataInicio').textContent   = 'Início: ' + (config.dataInicio || '—');
   document.getElementById('prazoDataFim').textContent      = 'Previsão: ' + (config.dataFim || '—');
   var totalCrono = typeof data.totalCronograma === 'number' ? data.totalCronograma : null;
+  if (totalCrono === null && data.cronograma && data.cronograma.length > 0) {
+    var sum = data.cronograma.reduce(function(a, c) { return a + (c.pct || 0); }, 0);
+    totalCrono = sum / data.cronograma.length;
+  }
   document.getElementById('prazoConcluidoPct').textContent = totalCrono !== null ? totalCrono.toFixed(1) : '—';
 
   // Custo m²

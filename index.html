@@ -1472,10 +1472,10 @@ function renderDash(data) {
           label: '% Concluído',
           data: cronograma.map(c => c.pct),
           backgroundColor: cronograma.map(c =>
-            c.pct >= 100 ? 'rgba(29,158,117,0.8)' : 'rgba(232,104,26,0.85)'
+            c.pct >= 100 ? 'rgba(232,104,26,0.85)' : 'rgba(120,120,120,0.55)'
           ),
           borderColor: cronograma.map(c =>
-            c.pct >= 100 ? '#1D9E75' : '#E8681A'
+            c.pct >= 100 ? '#E8681A' : 'rgba(100,100,100,0.7)'
           ),
           borderWidth: 1,
           borderRadius: 3

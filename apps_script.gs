@@ -287,10 +287,11 @@ function lerCronograma() {
   var total = 0;
   for (var i = 0; i < d.length; i++) {
     var etapa  = String(d[i][0]).trim();
-    var pctRaw = d[i][4]; // col E (índice 4)
     if (!etapa) continue;
-    var pct = parsePct(pctRaw);
     var etapaUp = etapa.toUpperCase();
+    // TOTAL: % em col F (índice 5); categorias: % em col E (índice 4)
+    var pctRaw = (etapaUp === 'TOTAL' || etapaUp === 'CONCLUIDO' || etapaUp === 'CONCLUÍDO') ? d[i][5] : d[i][4];
+    var pct = parsePct(pctRaw);
     if (etapaUp === 'TOTAL' || etapaUp === 'CONCLUIDO' || etapaUp === 'CONCLUÍDO') { total = pct; continue; }
     if (etapaUp === 'ORIGEM') continue; // ignora linha ORIGEM
     lista.push({ etapa: etapa, pct: Math.round(pct * 10) / 10 });

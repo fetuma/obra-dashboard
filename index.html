@@ -41,6 +41,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <noscript><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet"></noscript>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2/dist/chartjs-plugin-datalabels.min.js" defer></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { overflow-y: scroll; }
@@ -1443,6 +1444,7 @@ function renderDash(data) {
   if (pieInst) pieInst.destroy();
   if (pieCats.length > 0) {
     pieInst = new Chart(document.getElementById('pieChart'), {
+      plugins: [ChartDataLabels],
       type: 'doughnut',
       data: {
         labels: pieCats.map(c => c.categoria),
@@ -1462,7 +1464,16 @@ function renderDash(data) {
             const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
             const pct = total ? ((ctx.raw / total) * 100).toFixed(1) : 0;
             return ` ${ctx.label}: ${fmt(ctx.raw)} (${pct}%)`;
-          }}}
+          }}},
+          datalabels: {
+            color: '#fff',
+            font: { size: 10, weight: 'bold' },
+            formatter: (value, ctx) => {
+              const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
+              const pct = total ? ((value / total) * 100) : 0;
+              return pct >= 5 ? pct.toFixed(1) + '%' : '';
+            }
+          }
         }
       }
     });

@@ -290,7 +290,9 @@ function lerCronograma() {
     var pctRaw = d[i][4]; // col E (índice 4)
     if (!etapa) continue;
     var pct = parsePct(pctRaw);
-    if (etapa.toUpperCase() === 'TOTAL') { total = pct; continue; }
+    var etapaUp = etapa.toUpperCase();
+    if (etapaUp === 'TOTAL' || etapaUp === 'CONCLUIDO' || etapaUp === 'CONCLUÍDO') { total = pct; continue; }
+    if (etapaUp === 'ORIGEM') continue; // ignora linha ORIGEM
     lista.push({ etapa: etapa, pct: Math.round(pct * 10) / 10 });
   }
   return { lista: lista, total: Math.round(total * 10) / 10 };

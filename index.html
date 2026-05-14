@@ -1465,11 +1465,10 @@ function renderDash(data) {
   }
 
   // Gráfico Cronograma — barras horizontais % por etapa
-  const cronograma = data.cronograma || [];
+  const cronograma = (data.cronograma || []).filter(c => c.etapa.toUpperCase() !== 'ORIGEM');
   const cronoEl = document.getElementById('cronoChart');
   if (cronoInst) cronoInst.destroy();
   if (cronoEl && cronograma.length > 0) {
-    // altura dinâmica: 36px por etapa, mínimo 200px
     const cronoH = Math.max(200, cronograma.length * 36);
     const wrap = document.getElementById('cronoWrap');
     if (wrap) wrap.style.height = cronoH + 'px';

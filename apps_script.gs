@@ -32,6 +32,7 @@ function doGet(e) {
     delete resultado.config._saldoDevedor;
     resultado.config.projetos     = listarPDFs();
     resultado.config.perspectivas = listarImagens();
+    resultado.cronograma          = lerCronograma();
   } catch(err) {
     resultado.erro = err.message + ' | ' + err.stack;
   }
@@ -271,6 +272,23 @@ function debugDrive() {
     while (pdfs.hasNext()) { pdfs.next(); count++; }
     Logger.log('    PDFs: ' + count);
   }
+}
+
+// ── ABA CRONOGRAMA — etapa + % concluído ──────────────────────
+// Estrutura: col A = etapa, col B = % (0-100)
+function lerCronograma() {
+  var ss  = SpreadsheetApp.getActiveSpreadsheet();
+  var aba = ss.getSheetByName('CRONOGRAMA') || ss.getSheetByName('Cronograma');
+  if (!aba) return [];
+  var d = aba.getDataRange().getValues();
+  var lista = [];
+  for (var i = 1; i < d.length; i++) {
+    var etapa = String(d[i][0]).trim();
+    var pct   = parseNum(d[i][1]);
+    if (!etapa || etapa.toLowerCase() === 'total') continue;
+    lista.push({ etapa: etapa, pct: pct });
+  }
+  return lista;
 }
 
 // ── HELPERS ───────────────────────────────────────────────────

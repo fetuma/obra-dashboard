@@ -879,6 +879,15 @@
       </div>
     </div>
 
+    <!-- 5c. CRONOGRAMA -->
+    <div class="card card-full">
+      <div class="card-title">Cronograma</div>
+      <div class="card-subtitle">% de conclusão por etapa</div>
+      <div class="chart-container" id="cronoWrap" style="height:200px;">
+        <canvas id="cronoChart" role="img" aria-label="Gráfico de cronograma por etapa"></canvas>
+      </div>
+    </div>
+
     <!-- 6. PROJETOS -->
     <div class="card card-full">
       <div class="card-title">Projetos</div>
@@ -1072,8 +1081,9 @@ const API_URL = 'https://obra-dashboard-production.up.railway.app';
 
 let activeScriptUrl = null;
 
-let destInst = null;
-let pieInst  = null;
+let destInst  = null;
+let pieInst   = null;
+let cronoInst = null;
 
 function fmt(v) {
   return 'R$ ' + Number(v||0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -1440,6 +1450,55 @@ function renderDash(data) {
             const pct = total ? ((ctx.raw / total) * 100).toFixed(1) : 0;
             return ` ${ctx.label}: ${fmt(ctx.raw)} (${pct}%)`;
           }}}
+        }
+      }
+    });
+  }
+
+  // Gráfico Cronograma — barras horizontais % por etapa
+  const cronograma = data.cronograma || [];
+  const cronoEl = document.getElementById('cronoChart');
+  if (cronoInst) cronoInst.destroy();
+  if (cronoEl && cronograma.length > 0) {
+    // altura dinâmica: 36px por etapa, mínimo 200px
+    const cronoH = Math.max(200, cronograma.length * 36);
+    const wrap = document.getElementById('cronoWrap');
+    if (wrap) wrap.style.height = cronoH + 'px';
+    cronoInst = new Chart(cronoEl, {
+      type: 'bar',
+      data: {
+        labels: cronograma.map(c => c.etapa),
+        datasets: [{
+          label: '% Concluído',
+          data: cronograma.map(c => c.pct),
+          backgroundColor: cronograma.map(c =>
+            c.pct >= 100 ? 'rgba(29,158,117,0.8)' : 'rgba(232,104,26,0.85)'
+          ),
+          borderColor: cronograma.map(c =>
+            c.pct >= 100 ? '#1D9E75' : '#E8681A'
+          ),
+          borderWidth: 1,
+          borderRadius: 3
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => ` ${ctx.raw.toFixed(1)}%` } }
+        },
+        scales: {
+          x: {
+            min: 0, max: 100,
+            ticks: { color: '#333', font: { size: 10 }, callback: v => v + '%' },
+            grid: { color: 'rgba(0,0,0,0.06)' }
+          },
+          y: {
+            ticks: { color: '#333', font: { size: 10, family: 'DM Sans' } },
+            grid: { display: false }
+          }
         }
       }
     });

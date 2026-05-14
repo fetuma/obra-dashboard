@@ -274,19 +274,26 @@ function debugDrive() {
   }
 }
 
-// ── ABA CRONOGRAMA — etapa + % concluído ──────────────────────
-// Estrutura: col A = etapa, col B = % (0-100)
+// ── ABA CRONOGRAMA — categoria (col A) + % (col E) ────────────
+// Lê apenas linhas de categoria (col A não vazia, col E tem %)
 function lerCronograma() {
   var ss  = SpreadsheetApp.getActiveSpreadsheet();
   var aba = ss.getSheetByName('CRONOGRAMA') || ss.getSheetByName('Cronograma');
   if (!aba) return [];
   var d = aba.getDataRange().getValues();
   var lista = [];
-  for (var i = 1; i < d.length; i++) {
+  for (var i = 0; i < d.length; i++) {
     var etapa = String(d[i][0]).trim();
-    var pct   = parseNum(d[i][1]);
-    if (!etapa || etapa.toLowerCase() === 'total') continue;
-    lista.push({ etapa: etapa, pct: pct });
+    var pctRaw = d[i][4]; // col E (índice 4)
+    if (!etapa || etapa.toUpperCase() === 'TOTAL') continue;
+    // aceita número (0-1 ou 0-100) ou string "50%"
+    var pct = 0;
+    if (typeof pctRaw === 'number') {
+      pct = pctRaw <= 1 ? pctRaw * 100 : pctRaw;
+    } else {
+      pct = parseFloat(String(pctRaw).replace('%','').replace(',','.')) || 0;
+    }
+    lista.push({ etapa: etapa, pct: Math.round(pct * 10) / 10 });
   }
   return lista;
 }

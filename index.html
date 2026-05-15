@@ -935,7 +935,7 @@
   </div><!-- /dash-grid -->
 
   <div class="page-footer">
-    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.3.8</span>
+    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.3.9</span>
   </div>
 
 </div>
@@ -1052,7 +1052,7 @@
   </div>
 
   <div class="page-footer">
-    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.3.8</span>
+    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.3.9</span>
   </div>
 </div>
 
@@ -1181,6 +1181,7 @@ function fazerLogout() {
   clearTimeout(_sessionTimer);
   localStorage.removeItem('fc_token');
   localStorage.removeItem('fc_login_ts');
+  localStorage.removeItem('fc_data_cache');
   document.getElementById('app').classList.remove('active');
   document.getElementById('page-login').classList.add('active');
     // marca nav clientes como ativo
@@ -1217,7 +1218,7 @@ async function loadData() {
   // Mostra cache imediatamente se existir
   var cached = localStorage.getItem('fc_data_cache');
   if (cached) {
-    try { renderDash(JSON.parse(cached)); } catch(e) {}
+    try { var cd = JSON.parse(cached); if (!cd.erro) renderDash(cd); } catch(e) {}
   } else {
     document.getElementById('loading').style.display = 'flex';
     document.getElementById('app').classList.remove('active');
@@ -1231,6 +1232,7 @@ async function loadData() {
     if (resp.status === 401) { fazerLogout(); return; }
     const data = await resp.json();
 
+    if (data.erro) throw new Error('Apps Script: ' + data.erro);
     localStorage.setItem('fc_data_cache', JSON.stringify(data));
     _lastLoadTime = Date.now();
     renderDash(data);

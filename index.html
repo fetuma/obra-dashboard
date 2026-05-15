@@ -701,7 +701,7 @@
     letter-spacing: 0.04em;
     color: var(--text);
   }
-  .client-logout {
+  .client-logout, .client-refresh {
     font-size: 11px;
     color: var(--text-dark);
     cursor: pointer;
@@ -713,6 +713,8 @@
     transition: color 0.2s, border-color 0.2s;
   }
   .client-logout:hover { color: var(--orange); border-color: var(--orange); }
+  .client-refresh:hover { color: var(--orange); border-color: var(--orange); }
+  .client-header-actions { display: flex; gap: 8px; align-items: center; }
 
 
   /* ── PADRONIZAÇÃO DE LARGURA ─── */
@@ -793,7 +795,10 @@
   <!-- CABEÇALHO DO CLIENTE -->
   <div class="client-header">
     <div class="client-header-name" id="clientNome">—</div>
-    <button class="client-logout" onclick="fazerLogout()">Sair</button>
+    <div class="client-header-actions">
+      <button class="client-refresh" onclick="forceRefresh()" id="btnRefresh">↻ Atualizar</button>
+      <button class="client-logout" onclick="fazerLogout()">Sair</button>
+    </div>
   </div>
 
   <div class="last-update" id="lastUpdate"></div>
@@ -935,7 +940,7 @@
   </div><!-- /dash-grid -->
 
   <div class="page-footer">
-    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.4.0</span>
+    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.4.1</span>
   </div>
 
 </div>
@@ -1052,7 +1057,7 @@
   </div>
 
   <div class="page-footer">
-    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.4.0</span>
+    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.4.1</span>
   </div>
 </div>
 
@@ -1215,6 +1220,15 @@ function carouselGo(idx) {
 }
 
 var _lastLoadTime = 0;
+
+async function forceRefresh() {
+  var btn = document.getElementById('btnRefresh');
+  if (btn) { btn.disabled = true; btn.textContent = '↻ ...'; }
+  localStorage.removeItem('fc_data_cache');
+  await loadData();
+  if (btn) { btn.disabled = false; btn.textContent = '↻ Atualizar'; }
+}
+
 async function loadData() {
   // Mostra cache imediatamente se existir
   var cached = localStorage.getItem('fc_data_cache');

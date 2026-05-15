@@ -935,7 +935,7 @@
   </div><!-- /dash-grid -->
 
   <div class="page-footer">
-    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.3.9</span>
+    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.4.0</span>
   </div>
 
 </div>
@@ -1052,7 +1052,7 @@
   </div>
 
   <div class="page-footer">
-    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.3.9</span>
+    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.4.0</span>
   </div>
 </div>
 
@@ -1164,6 +1164,7 @@ async function fazerLogin(e) {
     var data = await resp.json();
     localStorage.setItem('fc_token', data.token);
     localStorage.setItem('fc_login_ts', Date.now());
+    localStorage.removeItem('fc_data_cache');
     loggedIn = true;
     _startSessionTimer();
     document.getElementById('loginError').style.display = 'none';

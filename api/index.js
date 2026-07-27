@@ -5,7 +5,7 @@ const cors    = require('cors');
 
 const app = express();
 app.use(express.json());
-app.use(cors({ origin: ['https://www.fc.arq.br', 'http://localhost'] }));
+app.use(cors({ origin: ['https://www.fc.arq.br', 'https://fc.arq.br', 'http://localhost'] }));
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const PORT       = process.env.PORT || 3000;
@@ -28,8 +28,10 @@ function carregarClientes() {
   return clientes;
 }
 
+const router = express.Router();
+
 // POST /login
-app.post('/login', (req, res) => {
+router.post('/login', (req, res) => {
   const { user, pass } = req.body || {};
   if (!user || !pass) return res.status(400).json({ erro: 'Dados ausentes' });
 
@@ -42,7 +44,7 @@ app.post('/login', (req, res) => {
 });
 
 // GET /dados
-app.get('/dados', async (req, res) => {
+router.get('/dados', async (req, res) => {
   const auth = req.headers.authorization || '';
   const token = auth.replace('Bearer ', '');
   if (!token) return res.status(401).json({ erro: 'Token ausente' });
@@ -74,6 +76,15 @@ app.get('/dados', async (req, res) => {
   }
 });
 
-app.get('/health', (_, res) => res.json({ ok: true }));
+router.get('/health', (_, res) => res.json({ ok: true }));
 
-app.listen(PORT, () => console.log(`StudioFC API na porta ${PORT}`));
+// Montado nos dois caminhos: a Vercel reescreve /api/* para esta função
+// preservando o path original, enquanto local roda em /login, /dados, /health.
+app.use('/api', router);
+app.use('/', router);
+
+if (require.main === module) {
+  app.listen(PORT, () => console.log(`StudioFC API na porta ${PORT}`));
+}
+
+module.exports = app;

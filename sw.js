@@ -1,4 +1,4 @@
-const CACHE_NAME = 'studiofc-v3';
+const CACHE_NAME = 'studiofc-v4';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -38,6 +38,7 @@ self.addEventListener('activate', function(e) {
 // Estratégia: cache-first para assets estáticos, network-first para dados
 self.addEventListener('fetch', function(e) {
   if (e.request.url.includes('script.google.com')) return;
+  if (e.request.url.includes('/trivor')) return;
 
   var url = e.request.url;
   var isStatic = /\.(webp|png|jpg|gif|js|css|woff2?)$/.test(url) ||

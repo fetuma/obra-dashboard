@@ -1,4 +1,7 @@
 {
+  "redirects": [
+    { "source": "/trivor", "destination": "/trivor/", "permanent": false }
+  ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api" }
   ],

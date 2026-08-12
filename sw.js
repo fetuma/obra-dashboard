@@ -1,4 +1,4 @@
-const CACHE_NAME = 'studiofc-v4';
+const CACHE_NAME = 'studiofc-v5';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -39,6 +39,7 @@ self.addEventListener('activate', function(e) {
 self.addEventListener('fetch', function(e) {
   if (e.request.url.includes('script.google.com')) return;
   if (e.request.url.includes('/trivor')) return;
+  if (e.request.url.includes('/api/')) return;
 
   var url = e.request.url;
   var isStatic = /\.(webp|png|jpg|gif|js|css|woff2?)$/.test(url) ||

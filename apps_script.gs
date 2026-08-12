@@ -44,9 +44,10 @@ function doGet(e) {
 }
 
 // ── ABA DADOS ─────────────────────────────────────────────────
-// Linha 1: Cliente | ESSENTIAL 53 | | data inicial (label)
-// Linha 2: M²      | 153          | m²
-// Linha 3: Previsão| 90           | dias | 01/03/2026
+// Linha 1: Cliente  | ESSENTIAL 53 | | data inicial (label)
+// Linha 2: M²       | 153          | m²
+// Linha 3: Previsão | 90           | dias | 01/03/2026
+// Linha 4: Concluído| 65           | %  ← informado à mão, manda no dashboard
 function lerDados() {
   var ss  = SpreadsheetApp.getActiveSpreadsheet();
   var aba = ss.getSheetByName('DADOS') || ss.getSheetByName('Dados') || ss.getSheetByName('dados');
@@ -65,6 +66,11 @@ function lerDados() {
   // Linha 3: col B = prazo em dias, col D = data inicial
   config.prazoDias  = parseNum(d[2][1]);
   config.dataInicio = formatarData(d[2][3]);
+
+  // Linha 4: col B = % concluído. Quando preenchida, é ela que vale no
+  // dashboard; vazia, o front volta a calcular pela média do cronograma.
+  var pct = lerPctConcluido(aba, d);
+  if (pct !== null) config.pctConcluido = pct;
 
   // Calcula data fim = dataInicio + prazoDias corridos
   if (config.dataInicio && config.prazoDias) {
@@ -86,6 +92,30 @@ function lerDados() {
   config.orcamento      = config._totalPrevisto;
 
   return config;
+}
+
+// ── DADOS B4 — % concluído informado à mão ──────────────────────
+// Devolve null quando a célula está vazia, para o front cair no
+// cálculo antigo em planilhas que ainda não têm essa linha.
+function lerPctConcluido(aba, d) {
+  if (d.length < 4) return null;
+
+  var bruto = d[3][1];
+  if (bruto === null || typeof bruto === 'undefined' || String(bruto).trim() === '') {
+    return null;
+  }
+
+  var v = parseNum(bruto);
+
+  // Célula formatada como porcentagem guarda 0,65 e não 65. O formato
+  // da célula desfaz a ambiguidade sem precisar adivinhar pelo valor.
+  if (aba.getRange(4, 2).getNumberFormat().indexOf('%') !== -1) {
+    v = v * 100;
+  }
+
+  if (v < 0)   v = 0;
+  if (v > 100) v = 100;
+  return v;
 }
 
 // ── ABA RESUMO — extrai débito e devedor por categoria + totais ──

@@ -940,7 +940,7 @@
   </div><!-- /dash-grid -->
 
   <div class="page-footer">
-    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.5.4</span>
+    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.5.5</span>
   </div>
 
 </div>
@@ -1057,7 +1057,7 @@
   </div>
 
   <div class="page-footer">
-    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.5.4</span>
+    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.5.5</span>
   </div>
 </div>
 
@@ -1307,7 +1307,12 @@ function renderDash(data) {
   document.getElementById('prazoDiasTotal').textContent    = prazoDias;
   document.getElementById('prazoDataInicio').textContent   = 'Início: ' + (config.dataInicio || '—');
   document.getElementById('prazoDataFim').textContent      = 'Previsão: ' + (config.dataFim || '—');
-  var totalCrono = typeof data.totalCronograma === 'number' ? data.totalCronograma : null;
+  // B4 da aba DADOS manda. Só quando ela vem vazia é que o cronograma
+  // volta a definir o percentual, para não quebrar planilhas antigas.
+  var totalCrono = typeof config.pctConcluido === 'number' ? config.pctConcluido : null;
+  if (totalCrono === null && typeof data.totalCronograma === 'number') {
+    totalCrono = data.totalCronograma;
+  }
   if (totalCrono === null && data.cronograma && data.cronograma.length > 0) {
     var sum = data.cronograma.reduce(function(a, c) { return a + (c.pct || 0); }, 0);
     totalCrono = sum / data.cronograma.length;

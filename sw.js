@@ -1,4 +1,4 @@
-const CACHE_NAME = 'studiofc-v8';
+const CACHE_NAME = 'studiofc-v9';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

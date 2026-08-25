@@ -732,6 +732,70 @@
     width: 100%;
   }
 
+  /* -- PORTFOLIO --- */
+  .pf-intro { padding: 0 0 18px; }
+  .pf-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(28px, 5vw, 44px);
+    font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.02em; line-height: 1; color: var(--text);
+  }
+  .pf-sub { font-size: 13px; color: #777; margin-top: 6px; }
+
+  .pf-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  .pf-cell {
+    position: relative; aspect-ratio: 1 / 1;
+    overflow: hidden; border-radius: 4px;
+    background: var(--bg-card); cursor: pointer;
+    border: none; padding: 0;
+  }
+  .pf-cell img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    transition: transform 420ms ease;
+  }
+  .pf-cell::after {
+    content: ''; position: absolute; inset: 0;
+    background: var(--orange); opacity: 0;
+    transition: opacity 240ms ease; pointer-events: none;
+  }
+  .pf-cell:hover img { transform: scale(1.06); }
+  .pf-cell:hover::after { opacity: 0.16; }
+  .pf-cell:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+
+  @media (max-width: 900px) { .pf-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 600px) { .pf-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; } }
+
+  /* Ampliacao ao clicar */
+  .pf-lightbox {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,0.92);
+    display: none; align-items: center; justify-content: center;
+  }
+  .pf-lightbox.open { display: flex; }
+  .pf-lightbox img {
+    max-width: 94vw; max-height: 88vh;
+    object-fit: contain; border-radius: 3px;
+  }
+  .pf-lb-btn {
+    position: absolute; background: none; border: none;
+    color: #FFFFFF; cursor: pointer; padding: 14px;
+    font-size: 30px; line-height: 1; opacity: 0.7;
+    transition: opacity 180ms ease;
+  }
+  .pf-lb-btn:hover { opacity: 1; }
+  .pf-lb-close { top: 8px; right: 12px; font-size: 34px; }
+  .pf-lb-prev  { left: 4px; }
+  .pf-lb-next  { right: 4px; }
+  .pf-lb-count {
+    position: absolute; bottom: 16px; left: 0; right: 0;
+    text-align: center; color: #FFFFFF; opacity: 0.55;
+    font-size: 11px; letter-spacing: 0.14em;
+  }
+
   /* ── FOOTER ─── */
   .page-footer {
     width: 100%;
@@ -940,7 +1004,7 @@
   </div><!-- /dash-grid -->
 
   <div class="page-footer">
-    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.5.5</span>
+    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.6.0</span>
   </div>
 
 </div>
@@ -1057,8 +1121,32 @@
   </div>
 
   <div class="page-footer">
-    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.5.5</span>
+    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.6.0</span>
   </div>
+</div>
+
+<!-- PÁGINA PORTFÓLIO -->
+<div id="page-portfolio" class="page">
+  <div class="page-content">
+    <div class="pf-intro">
+      <div class="pf-title">Portfólio</div>
+      <div class="pf-sub">Maquetes eletrônicas e projetos executados</div>
+    </div>
+    <div class="pf-grid" id="pfGrid"></div>
+  </div>
+
+  <div class="page-footer">
+    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.6.0</span>
+  </div>
+</div>
+
+<!-- AMPLIAÇÃO DO PORTFÓLIO -->
+<div class="pf-lightbox" id="pfLightbox" role="dialog" aria-modal="true" aria-label="Imagem ampliada">
+  <button class="pf-lb-btn pf-lb-close" onclick="pfClose()" aria-label="Fechar">&times;</button>
+  <button class="pf-lb-btn pf-lb-prev" onclick="pfStep(-1)" aria-label="Anterior">&#8249;</button>
+  <img id="pfLightboxImg" src="" alt="">
+  <button class="pf-lb-btn pf-lb-next" onclick="pfStep(1)" aria-label="Próxima">&#8250;</button>
+  <div class="pf-lb-count" id="pfLightboxCount"></div>
 </div>
 
 <!-- BOTTOM NAV -->
@@ -1086,6 +1174,15 @@
     </svg>
     <span>Contato</span>
   </a>
+  <a class="nav-item" href="#portfolio" onclick="navTo('portfolio',this)" aria-label="Portfólio">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="7" height="7" rx="1"/>
+      <rect x="14" y="3" width="7" height="7" rx="1"/>
+      <rect x="3" y="14" width="7" height="7" rx="1"/>
+      <rect x="14" y="14" width="7" height="7" rx="1"/>
+    </svg>
+    <span>Portfólio</span>
+  </a>
 </div>
 </nav>
 
@@ -1106,7 +1203,7 @@ function hoje() {
 }
 
 let currentPage = 'inicial';
-const pages = { inicial: 'page-inicial', clientes: 'page-login', contato: 'page-contato' };
+const pages = { inicial: 'page-inicial', clientes: 'page-login', portfolio: 'page-portfolio', contato: 'page-contato' };
 
 var loggedIn = false;
 var activeClientIndex = -1;
@@ -1138,7 +1235,7 @@ function navTo(page, el) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   el.classList.add('active');
   document.body.classList.toggle('inicial-active', page === 'inicial');
-  ['page-inicial','page-login','app','page-contato'].forEach(function(id) {
+  ['page-inicial','page-login','app','page-portfolio','page-contato'].forEach(function(id) {
     var pg = document.getElementById(id);
     if (pg) pg.classList.remove('active');
   });
@@ -1561,6 +1658,70 @@ function enviarContato(e) {
 }
 
 // Sempre inicia na página INICIAL
+
+// ── PORTFÓLIO ──────────────────────────────
+var _pfSrcs = (function() {
+  var a = [];
+  for (var i = 1; i <= 22; i++) a.push('portifolio/p' + (i < 10 ? '0' + i : i) + '.webp');
+  return a;
+})();
+var _pfIndex = 0;
+
+(function montarPortfolio() {
+  var grid = document.getElementById('pfGrid');
+  if (!grid) return;
+  _pfSrcs.forEach(function(src, i) {
+    var cell = document.createElement('button');
+    cell.className = 'pf-cell';
+    cell.type = 'button';
+    cell.setAttribute('aria-label', 'Ampliar imagem ' + (i + 1) + ' de ' + _pfSrcs.length);
+    cell.onclick = function() { pfOpen(i); };
+
+    var img = document.createElement('img');
+    img.src = src;
+    img.alt = 'Projeto Studio FC ' + (i + 1);
+    img.loading = 'lazy';
+    img.decoding = 'async';
+
+    cell.appendChild(img);
+    grid.appendChild(cell);
+  });
+})();
+
+function pfOpen(i) {
+  _pfIndex = i;
+  pfRender();
+  document.getElementById('pfLightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function pfClose() {
+  document.getElementById('pfLightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function pfStep(dir) {
+  _pfIndex = (_pfIndex + dir + _pfSrcs.length) % _pfSrcs.length;
+  pfRender();
+}
+
+function pfRender() {
+  document.getElementById('pfLightboxImg').src = _pfSrcs[_pfIndex];
+  document.getElementById('pfLightboxImg').alt = 'Projeto Studio FC ' + (_pfIndex + 1);
+  document.getElementById('pfLightboxCount').textContent = (_pfIndex + 1) + ' / ' + _pfSrcs.length;
+}
+
+// Clicar no fundo fecha; clicar na imagem ou nos botões, não
+document.getElementById('pfLightbox').addEventListener('click', function(e) {
+  if (e.target === this) pfClose();
+});
+
+document.addEventListener('keydown', function(e) {
+  if (!document.getElementById('pfLightbox').classList.contains('open')) return;
+  if (e.key === 'Escape')     pfClose();
+  if (e.key === 'ArrowLeft')  pfStep(-1);
+  if (e.key === 'ArrowRight') pfStep(1);
+});
 
 // ── HERO IMAGE ROTATOR ─────────────────────────────────
 var _heroSrcs = (function() {

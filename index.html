@@ -1004,7 +1004,7 @@
   </div><!-- /dash-grid -->
 
   <div class="page-footer">
-    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.6.1</span>
+    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.6.2</span>
   </div>
 
 </div>
@@ -1121,7 +1121,7 @@
   </div>
 
   <div class="page-footer">
-    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.6.1</span>
+    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.6.2</span>
   </div>
 </div>
 
@@ -1136,7 +1136,7 @@
   </div>
 
   <div class="page-footer">
-    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.6.1</span>
+    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.6.2</span>
   </div>
 </div>
 
@@ -1660,9 +1660,11 @@ function enviarContato(e) {
 // Sempre inicia na página INICIAL
 
 // ── PORTFÓLIO ──────────────────────────────
+// Os arquivos estao numerados do projeto mais antigo (p01) para o mais recente.
+// A grade mostra do mais recente para o mais antigo, entao a lista vem invertida.
 var _pfSrcs = (function() {
   var a = [];
-  for (var i = 1; i <= 18; i++) a.push('portifolio/p' + (i < 10 ? '0' + i : i) + '.webp');
+  for (var i = 18; i >= 1; i--) a.push('portifolio/p' + (i < 10 ? '0' + i : i) + '.webp');
   return a;
 })();
 var _pfIndex = 0;

@@ -11,8 +11,9 @@
 //   A: fonte (categoria)  B: Loja  C: SUM de debito  D: SUM de devedor
 //   Última linha: "Total geral"
 //
-// Aba de CONTA CORRENTE (qualquer nome; achada pelo cabeçalho):
-//   data | origem | entrada (crédito) | saída (débito) | saldo (opcional)
+// Aba de CONTA CORRENTE ("Página1"; achada pelo cabeçalho):
+//   Dia | Mês | Ano | pedido | NF# | Loja | produto | fonte | debito |
+//   parcela | credito | devedor | ...
 //
 // Aba PREVISÃO:
 //   A: ORIGEM (categoria)  B: PREVISÃO
@@ -235,19 +236,23 @@ function lerCategorias() {
 }
 
 // ── CONTA CORRENTE — extrato estilo banco ───────────────────────
-// A aba é localizada pelo cabeçalho, não pelo nome: precisa ter uma
-// coluna de data e uma de saída/débito. Nomes aceitos por coluna:
-//   data    → "data..."
-//   origem  → origem | fonte | histórico | descrição | loja | fornecedor
+// A aba é localizada pelo cabeçalho, não pelo nome: precisa ter data
+// (uma coluna "data" ou colunas dia + mês + ano) e uma de saída/débito.
+// Na planilha CC a aba é a "Página1": Dia | Mês | Ano | ... | Loja | ... |
+// fonte | debito | parcela | credito | devedor.
+//   origem  → origem | loja | fornecedor | histórico | descrição
+//             (vazia na linha → usa a coluna fonte)
 //   entrada → entrada | crédito | aporte | depósito | recebido | pagamento | pago
 //   saída   → saída | débito | despesa
-//   saldo   → saldo (opcional; sem ela o saldo é acumulado aqui)
+//   saldo   → saldo (opcional; sem ela o saldo é acumulado aqui:
+//             entradas − saídas, então negativo = valor ainda devido)
+// Linhas sem débito e sem crédito ficam de fora.
 // Abas com "conta", "corrente", "extrato" ou "caixa" no nome têm prioridade.
 var CC_MAX_LINHAS = 200;
 
 function normTxt(v) {
   return String(v === null || typeof v === 'undefined' ? '' : v)
-    .trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    .trim().toLowerCase().normalize('NFD').replace(/[^ -]/g, '');
 }
 
 function acharColuna(cab, padroes) {
@@ -266,14 +271,34 @@ function acharCabecalhoCC(d) {
     var col = {
       linha:   i,
       data:    acharColuna(cab, ['data']),
-      origem:  acharColuna(cab, ['origem', 'fonte', 'historico', 'descricao', 'loja', 'fornecedor']),
+      dia:     acharColuna(cab, ['dia']),
+      mes:     acharColuna(cab, ['mes']),
+      ano:     acharColuna(cab, ['ano']),
+      origem:  acharColuna(cab, ['origem', 'loja', 'fornecedor', 'historico', 'descricao']),
+      fonte:   acharColuna(cab, ['fonte', 'categoria']),
       entrada: acharColuna(cab, ['entrada', 'credito', 'aporte', 'deposito', 'recebido', 'pagamento', 'pago']),
       saida:   acharColuna(cab, ['saida', 'debito', 'despesa']),
       saldo:   acharColuna(cab, ['saldo'])
     };
-    if (col.data >= 0 && col.saida >= 0) return col;
+    var temData = col.data >= 0 || (col.dia >= 0 && col.mes >= 0);
+    if (temData && col.saida >= 0) return col;
   }
   return null;
+}
+
+// Data da linha: coluna única de data, ou dia / mês / ano em colunas separadas.
+function dataDaLinhaCC(r, col) {
+  if (col.data >= 0) {
+    var v = r[col.data];
+    // Texto "dd/mm/aaaa" passa direto: new Date() leria como mm/dd.
+    return (Object.prototype.toString.call(v) === '[object Date]') ? formatarData(v) : String(v || '').trim();
+  }
+  var dia = parseNum(r[col.dia]);
+  var mes = parseNum(r[col.mes]);
+  var ano = col.ano >= 0 ? parseNum(r[col.ano]) : 0;
+  if (!dia || !mes) return '';
+  var s = ('0' + dia).slice(-2) + '/' + ('0' + mes).slice(-2);
+  return ano >= 1000 ? s + '/' + ano : s;
 }
 
 function acharAbaContaCorrente() {
@@ -301,12 +326,18 @@ function lerContaCorrente() {
   for (var i = col.linha + 1; i < d.length; i++) {
     var r = d[i];
     var origem  = col.origem  >= 0 ? String(r[col.origem] || '').trim() : '';
+    if (!origem && col.fonte >= 0) origem = String(r[col.fonte] || '').trim();
     var entrada = col.entrada >= 0 ? parseNum(r[col.entrada]) : 0;
     var saida   = Math.abs(parseNum(r[col.saida]));
-    var rotulo  = normTxt(origem) || normTxt(r[col.data]);
 
-    if (rotulo.indexOf('total') === 0) continue;       // linha de totais da planilha
-    if (!r[col.data] && !entrada && !saida) continue;  // linha vazia
+    var primeira = r[col.data >= 0 ? col.data : col.dia];
+    if (normTxt(origem).indexOf('total') === 0 || normTxt(primeira).indexOf('total') === 0) continue;  // linha de totais
+    if (!entrada && !saida) continue;                      // linha sem movimento
+
+    // Somatórios no rodapé da planilha não têm data nem loja/fonte:
+    // se entrassem, o saldo contaria tudo em dobro.
+    var dataTxt = dataDaLinhaCC(r, col);
+    if (!dataTxt && !origem) continue;
 
     var saldoPlanilha = col.saldo >= 0 ? r[col.saldo] : '';
     if (saldoPlanilha !== '' && saldoPlanilha !== null) saldo = parseNum(saldoPlanilha);
@@ -315,8 +346,7 @@ function lerContaCorrente() {
     totalEntrada += entrada;
     totalSaida   += saida;
     linhas.push({
-      // Texto "dd/mm/aaaa" passa direto: new Date() leria como mm/dd.
-      data:    (Object.prototype.toString.call(r[col.data]) === '[object Date]') ? formatarData(r[col.data]) : String(r[col.data] || '').trim(),
+      data:    dataTxt,
       origem:  origem,
       entrada: Math.round(entrada * 100) / 100,
       saida:   Math.round(saida * 100) / 100,
@@ -354,9 +384,10 @@ function lerDevedores() {
     if (/ total$/.test(rot)) continue;   // subtotal da tabela dinâmica
     if (fonte) fonteAtual = fonte;
 
-    var valor = parseNum(d[i][3]);
+    // Arredonda antes de testar: resíduo de centavos (0,000001) não é dívida.
+    var valor = Math.round(parseNum(d[i][3]) * 100) / 100;
     if (!valor) continue;
-    lista.push({ fonte: fonteAtual, loja: loja, valor: Math.round(valor * 100) / 100 });
+    lista.push({ fonte: fonteAtual, loja: loja, valor: valor });
   }
   return lista.sort(function(a, b) { return b.valor - a.valor; });
 }

@@ -243,10 +243,11 @@
   .dev-valor { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700; color: var(--orange); white-space: nowrap; }
   .dev-total { background: var(--bg); font-weight: 700; }
 
-  /* Tela larga: extrato e devedor lado a lado, colunas de valor juntas,
-     para os números não ficarem espalhados pela largura toda. */
+  /* Tela larga: todos os painéis em meia largura, dois por linha e do mesmo
+     tamanho, com as colunas de valor do extrato juntas — nada espalhado
+     pela largura toda. */
   @media (min-width: 1000px) {
-    #ccCard, #devCard { grid-column: auto; }
+    .dash-grid .card-full { grid-column: auto; }
     .cc-resumo { display: flex; gap: 40px; }
     .cc-table th:first-child, .cc-table td:first-child { width: 78px; }
     .cc-table th:nth-child(n+3), .cc-table td:nth-child(n+3) { width: 108px; }
@@ -1068,7 +1069,7 @@
   </div><!-- /dash-grid -->
 
   <div class="page-footer">
-    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.8.5</span>
+    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.8.6</span>
   </div>
 
 </div>
@@ -1185,7 +1186,7 @@
   </div>
 
   <div class="page-footer">
-    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.8.5</span>
+    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.8.6</span>
   </div>
 </div>
 
@@ -1200,7 +1201,7 @@
   </div>
 
   <div class="page-footer">
-    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.8.5</span>
+    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.8.6</span>
   </div>
 </div>
 

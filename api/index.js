@@ -86,7 +86,7 @@ router.get('/dados', async (req, res) => {
   // este cliente lê, sem expor a URL. Serve para conferir em "Gerenciar implantações".
   let fonte = '';
   try { fonte = new URL(client.url).pathname.split('/')[3].slice(-4); } catch { /* URL inválida é tratada abaixo */ }
-  const send = (entry, stale) => res.json({ ...entry.data, _cache: { stale, updatedAt: entry.ts, fonte } });
+  const send = (entry, stale) => res.json({ ...entry.data, _cache: { stale, updatedAt: entry.ts, fonte, cliente: client.id } });
   if (!refresh && cached && Date.now() - cached.ts < 300000) return send(cached, false);
   try {
     if (!inFlight.has(cacheKey)) {

@@ -4,3 +4,15 @@ apps_script.gs
 portifolio/*.jpg
 portifolio/*.png
 *.gif
+
+!icons/favicon.gif
+tests/
+scripts/
+SECURITY-DEPLOY.md
+api/.env.example
+
+# Only the numbered web portfolio is deployed; keep source artwork local.
+portifolio/**
+!portifolio/p*.webp
+FE.png
+LOGO SFC 2026.png

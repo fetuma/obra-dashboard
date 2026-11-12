@@ -1,4 +1,4 @@
-const CACHE_NAME = 'studiofc-v10';
+const CACHE_NAME = 'studiofc-v12';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -12,7 +12,7 @@ const STATIC_ASSETS = [
   'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js'
 ];
 
-// Instala e faz cache dos assets estáticos
+// Instala e faz cache dos assets estÃ¡ticos
 self.addEventListener('install', function(e) {
   e.waitUntil(
     caches.open(CACHE_NAME).then(function(cache) {
@@ -35,8 +35,11 @@ self.addEventListener('activate', function(e) {
   self.clients.claim();
 });
 
-// Estratégia: cache-first para assets estáticos, network-first para dados
+// EstratÃ©gia: cache-first para assets estÃ¡ticos, network-first para dados
 self.addEventListener('fetch', function(e) {
+  if (e.request.method !== 'GET') return;
+  // Do not persist client images from Drive in the service worker cache.
+  if (new URL(e.request.url).origin !== self.location.origin) return;
   if (e.request.url.includes('script.google.com')) return;
   if (e.request.url.includes('/trivor')) return;
   if (e.request.url.includes('/api/')) return;
@@ -51,6 +54,7 @@ self.addEventListener('fetch', function(e) {
       caches.match(e.request).then(function(cached) {
         if (cached) return cached;
         return fetch(e.request).then(function(response) {
+          if (!response.ok) return response;
           var clone = response.clone();
           caches.open(CACHE_NAME).then(function(cache) {
             cache.put(e.request, clone);
@@ -63,6 +67,7 @@ self.addEventListener('fetch', function(e) {
     e.respondWith(
       fetch(e.request)
         .then(function(response) {
+          if (!response.ok) return response;
           var clone = response.clone();
           caches.open(CACHE_NAME).then(function(cache) {
             cache.put(e.request, clone);

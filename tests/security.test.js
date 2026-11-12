@@ -1,0 +1,57 @@
+const { test } = require('node:test');
+const assert = require('node:assert/strict');
+const crypto = require('node:crypto');
+process.env.JWT_SECRET = 'test-only-secret-with-more-than-32-characters';
+process.env.CLIENT_0_USER = 'test@example.com';
+process.env.CLIENT_0_PASS_HASH = 'scrypt$' + 'a'.repeat(32) + '$' + crypto.scryptSync('test-password', 'a'.repeat(32), 64).toString('hex');
+process.env.CLIENT_0_SCRIPT_URL = 'https://script.google.com/macros/s/test/exec';
+process.env.CLIENT_0_SCRIPT_KEY = 'upstream-test-key';
+process.env.NODE_ENV = 'test';
+process.env.VERCEL = '0';
+let upstreamCalls = 0;
+const fetchPath = require.resolve('node-fetch');
+require.cache[fetchPath] = { id: fetchPath, filename: fetchPath, loaded: true, exports: async (url, options) => {
+  assert.equal(url, process.env.CLIENT_0_SCRIPT_URL);
+  assert.equal(options.method, 'POST');
+  assert.equal(JSON.parse(options.body).key, 'upstream-test-key');
+  await new Promise(resolve => setTimeout(resolve, 40));
+  upstreamCalls++;
+  return { ok: true, json: async () => ({ config: { nome: 'Test' }, categorias: [] }) };
+} };
+const app = require('../api/index');
+test('authentication, CSRF, upstream and throttling', async () => {
+  const server = app.listen(0, '127.0.0.1');
+  await new Promise(resolve => server.once('listening', resolve));
+  const base = `http://127.0.0.1:${server.address().port}/api`;
+  const post = (path, data, origin = 'http://localhost') => fetch(base + path, { method: 'POST', headers: { 'Content-Type': 'application/json', Origin: origin }, body: JSON.stringify(data) });
+  try {
+    assert.equal((await fetch(base + '/dados')).status, 401);
+    assert.equal((await post('/login', {}, 'https://evil.example')).status, 403);
+    assert.equal((await post('/login', { user: {}, pass: 'x' })).status, 400);
+    assert.equal((await post('/login', { user: 'test@example.com', pass: 'wrong' })).status, 401);
+    const login = await post('/login', { user: 'test@example.com', pass: 'test-password' });
+    assert.equal(login.status, 200);
+    assert.equal(login.headers.get('cache-control'), 'private, no-store');
+    const body = await login.json();
+    assert.ok(body.expiresAt > Date.now()); assert.equal(body.token, undefined);
+    const cookie = login.headers.get('set-cookie');
+    assert.match(cookie, /HttpOnly/); assert.match(cookie, /SameSite=Strict/);
+    const raw = cookie.split(';')[0];
+    const payload = JSON.parse(Buffer.from(raw.split('=')[1].split('.')[1], 'base64url').toString());
+    assert.equal(payload.scriptUrl, undefined); assert.equal(payload.sub, '0');
+    const responses = await Promise.all(Array.from({ length: 4 }, () => fetch(base + '/dados', { headers: { Cookie: raw } })));
+    assert.equal(upstreamCalls, 1, 'Concurrent requests share one upstream read');
+    const data = responses[0];
+    assert.equal(data.status, 200); assert.equal((await data.json()).config.nome, 'Test');
+    await fetch(base + '/dados', { headers: { Cookie: raw } });
+    assert.equal(upstreamCalls, 1, 'Fresh cache avoids upstream');
+    await fetch(base + '/dados?refresh=1', { headers: { Cookie: raw } });
+    assert.equal(upstreamCalls, 2, 'Refresh bypasses cache');
+    const logout = await post('/logout', {});
+    assert.match(logout.headers.get('set-cookie'), /Expires=Thu, 01 Jan 1970/);
+    assert.equal((await fetch(base + '/dados', { headers: { Cookie: 'fc_session=invalid' } })).status, 401);
+    let last;
+    for (let i = 0; i < 11; i++) last = await post('/login', { user: 'test@example.com', pass: 'wrong' });
+    assert.equal(last.status, 429);
+  } finally { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); }
+});

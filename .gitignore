@@ -6,3 +6,5 @@ portifolio/novas/
 portifolio/*.jpg
 portifolio/*.jpeg
 portifolio/*.png
+
+.env*

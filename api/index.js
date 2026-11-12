@@ -82,7 +82,11 @@ router.get('/dados', async (req, res) => {
   const cacheKey = crypto.createHash('sha256').update(JSON.stringify([client.id, client.url, client.key])).digest('hex');
   const cached = cache.get(cacheKey);
   const refresh = req.query.refresh === '1';
-  const send = (entry, stale) => res.json({ ...entry.data, _cache: { stale, updatedAt: entry.ts } });
+  // Final do código de implantação do Apps Script: identifica qual implantação
+  // este cliente lê, sem expor a URL. Serve para conferir em "Gerenciar implantações".
+  let fonte = '';
+  try { fonte = new URL(client.url).pathname.split('/')[3].slice(-4); } catch { /* URL inválida é tratada abaixo */ }
+  const send = (entry, stale) => res.json({ ...entry.data, _cache: { stale, updatedAt: entry.ts, fonte } });
   if (!refresh && cached && Date.now() - cached.ts < 300000) return send(cached, false);
   try {
     if (!inFlight.has(cacheKey)) {

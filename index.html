@@ -1059,7 +1059,7 @@
   </div><!-- /dash-grid -->
 
   <div class="page-footer">
-    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.8.2</span>
+    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.8.3</span>
   </div>
 
 </div>
@@ -1176,7 +1176,7 @@
   </div>
 
   <div class="page-footer">
-    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.8.2</span>
+    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.8.3</span>
   </div>
 </div>
 
@@ -1191,7 +1191,7 @@
   </div>
 
   <div class="page-footer">
-    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.8.2</span>
+    © 2026 by Studio FC — Todos os direitos reservados &nbsp;·&nbsp; <span style="opacity:0.5;">v1.8.3</span>
   </div>
 </div>
 
@@ -1435,6 +1435,13 @@ function loadData(refresh) {
       renderDash(data);
       _lastLoadTime = Date.now();
       document.getElementById('lastUpdate').textContent = (data._cache && data._cache.stale ? 'Dados anteriores — conexão indisponível. Atualizado em ' : 'Atualizado em ') + new Date(data._cache ? data._cache.updatedAt : Date.now()).toLocaleString('pt-BR');
+      // Script da planilha antigo não envia o extrato: avisa e mostra o final
+      // do código da implantação lida, para achá-la em "Gerenciar implantações".
+      if (typeof data.contaCorrente === 'undefined') {
+        document.getElementById('lastUpdate').textContent += ' · extrato não enviado pela planilha (implantação …' + ((data._cache && data._cache.fonte) || '?') + ')';
+      } else if (data.contaCorrente === null) {
+        document.getElementById('lastUpdate').textContent += ' · aba da conta corrente não encontrada na planilha';
+      }
       document.getElementById('errorMsg').style.display = 'none';
     } catch(e) {
       if (generation !== _sessionGeneration || !loggedIn) return;

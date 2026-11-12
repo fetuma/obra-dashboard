@@ -17,6 +17,8 @@ A pasta trivor não foi alterada. Nenhuma configuração de DNS, Cloudflare ou V
 3. Configure CLIENT_N_SCRIPT_KEY na Vercel com a mesma chave e faça deploy da API. Coordene estes passos em janela de manutenção: até ambos estarem ativos, a leitura pode falhar.
 4. Verifique que GET direto no script e POST sem chave não retornam dados. Confirme o painel com uma conta válida.
 
+A chave é opcional no script: enquanto API_SHARED_SECRET não estiver definida nas propriedades, o script novo responde sem chave (GET ou POST), como o antigo. Isso permite republicar o script primeiro e ligar a chave depois, cliente por cliente. Definida a propriedade, GET e POST sem a chave certa são recusados.
+
 Sem CLIENT_N_SCRIPT_KEY, a API mantém temporariamente GET para compatibilidade com a implantação antiga. Isso NÃO fecha o acesso direto ao script antigo. A URL não é mais enviada ao navegador; URLs anteriormente expostas devem ser substituídas por uma nova implantação, desativando a antiga. Revise também permissões de compartilhamento dos arquivos do Drive.
 
 ## Firewall e sessões

@@ -94,6 +94,9 @@ router.get('/dados', async (req, res) => {
       options.method = 'POST';
       options.headers = { 'Content-Type': 'application/json' };
       options.body = JSON.stringify({ key: client.key, refresh });
+    } else if (refresh) {
+      // Sem chave a consulta é GET; o refresh vai na query para furar o cache do script.
+      url.searchParams.set('refresh', '1');
     }
     const response = await fetch(url.href, options);
     if (!response.ok) throw new Error('Upstream failed');

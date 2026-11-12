@@ -21,15 +21,24 @@
 
 var PASTA_RAIZ_ID = '1yUfuFKPOHCmG9UCwwPajYfpJu8nCRdkl';
 
-function doGet(e) {
+// A chave é opcional. Sem a propriedade API_SHARED_SECRET o script responde
+// como sempre respondeu (GET ou POST, sem chave). Com ela definida em
+// Configurações do projeto → Propriedades do script, só POST com a chave
+// certa recebe dados — ver SECURITY-DEPLOY.md.
+function negarAcesso() {
   return ContentService.createTextOutput(JSON.stringify({erro: 'Acesso não autorizado'})).setMimeType(ContentService.MimeType.JSON);
+}
+function doGet(e) {
+  var secret = PropertiesService.getScriptProperties().getProperty('API_SHARED_SECRET');
+  if (secret) return negarAcesso();
+  return obterDados(!!(e && e.parameter && e.parameter.refresh === '1'));
 }
 function doPost(e) {
   var secret = PropertiesService.getScriptProperties().getProperty('API_SHARED_SECRET');
   var body;
   try { body = JSON.parse(e.postData.contents); } catch (_) { body = {}; }
-  if (!secret || !body || body.key !== secret) return doGet(e);
-  return obterDados(body.refresh === true);
+  if (secret && (!body || body.key !== secret)) return negarAcesso();
+  return obterDados(!!body && body.refresh === true);
 }
 var _sheetRows = {};
 function linhasDaAba(aba) {
